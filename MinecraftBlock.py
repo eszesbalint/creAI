@@ -1,4 +1,4 @@
-from tile import Tile, TileSetLoader
+from Tile import Tile, TileSetLoader
 from MinecraftBlockIDSystem import MinecraftBlockID, variantToDict, compareVariants
 import json
 import glob

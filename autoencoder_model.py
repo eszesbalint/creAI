@@ -1,14 +1,14 @@
-###############################################################
-# AutoWiki                                                    #
-# Created by: Eszes Balint (ebalint96) 2018                   #
-###############################################################
-
-INPUT_SIZE = 10
+INPUT_SIZE = 107
 ENCODED_SIZE = 3
 
 import numpy as np
 
-x_train = np.load("blockdata.npy")
+import MinecraftBlock as MB
+
+mbl = MB.MinecraftBlockSetLoader()
+mbl.loadFromFile('./Minecraft')
+
+x_train = mbl.toNumpyArray()
 
 from keras.models import Model
 from keras.layers import Dense,Input,GaussianNoise
@@ -21,7 +21,7 @@ input_vector = Input(shape=(INPUT_SIZE,))
 
 encode_1 = Dense(8,activation='relu')(input_vector)
 encode_2 = Dense(5,activation='relu')(encode_1)
-encoded = Dense(ENCODED_SIZE,activation='sigmoid')(encode_2)
+encoded = Dense(ENCODED_SIZE,activation='relu')(encode_2)
 
 decode_1 = Dense(5,activation='relu')(encoded)
 decode_2 = Dense(8,activation='relu')(decode_1)
@@ -33,11 +33,11 @@ encoded_input = Input(shape=(ENCODED_SIZE,))
 
 
 autoencoder.compile(optimizer=SGD(lr=0.1, momentum=0.9, nesterov=True),loss='mean_squared_error')
-autoencoder.fit(x_train,x_train,epochs=1000,batch_size=100)
+autoencoder.fit(x_train,x_train,epochs=1000,batch_size=50)
 
 #Saving the trained model
 encoder.save('encoder.h5')
-decoder.save('decoder.h5')
+#decoder.save('decoder.h5')
 
 
 

@@ -17,14 +17,17 @@ import matplotlib.pyplot as plt
 xs = []
 ys = []
 zs = []
-json_data = open('blocklabels').read()
-labels = json.loads(json_data);
+
+
 colors = []
 
-data = np.load("blockdata.npy")
-print(data)
-print(data.shape[0])
-print(data[1])
+import MinecraftBlock as MB
+
+mbl = MB.MinecraftBlockSetLoader()
+mbl.loadFromFile('./Minecraft')
+
+data = mbl.toNumpyArray()
+labels = [block.minecraft_id.getID('new')[0] for block in mbl._set]
 
 for i in range(data.shape[0]):
 	
@@ -39,13 +42,18 @@ for i in range(data.shape[0]):
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-ax.scatter = ax.scatter(xs,ys,zs,s=5,c=colors)
+colors = np.asarray(colors)[:, 0:4]
+print colors
+
+ax.scatter(xs,ys,zs,s=5,c=colors)
+
 ax.grid(color='white', linestyle='solid')
 
 
 
 #for i, txt in enumerate(labels):
-#    ax.annotate(txt, (xs[i],ys[i]))
+#	if (i%2 == 0):
+#		ax.annotate(txt, (xs[i],xs[i]))
 
 plt.show()
 

@@ -25,37 +25,45 @@ class MinecraftBlock(Tile):
 
 		json_data = open(path + BLOCKSTATES + name_id + '.json').read()
 		data = json.loads(json_data)
+		modelname = ''
+		if 'multipart' in data:
+			if isinstance(data['multipart'][0]['apply'], list):
+				modelname = data['multipart'][0]['apply'][0]['model']
+			elif isinstance(data['multipart'][0]['apply'], dict):
+				modelname = data['multipart'][0]['apply']['model']
+		elif 'variants' in data:
+			#Find the coresponding variant in json file
+			for v in data['variants']:
+				if compareVariants(variant_id,v):
+					if isinstance(data['variants'][v], list):
+						modelname = data['variants'][v][0]['model']
+					elif isinstance(data['variants'][v], dict):
+						modelname = data['variants'][v]['model']
 
-		#Find the coresponding variant in json file
-		for v in data['variants']:
-			if compareVariants(variant_id,v):
-				#Loading block model
-				modelname = ''
-				if isinstance(data['variants'][v], list):
-					modelname = data['variants'][v][0]['model']
-				elif isinstance(data['variants'][v], dict):
-					modelname = data['variants'][v]['model']
+		modelpath = path + BLOCKMODELS + modelname + '.json'
+		json_model_data = open(modelpath).read()
+		model_data = json.loads(json_model_data);
 
-				modelpath = path + BLOCKMODELS + modelname + '.json'
+		for i in model_data['textures']:
+			texturepath = path + TEXTURES + model_data['textures'][i] + '.png'
+			self._textures.append(misc.imread(texturepath,mode='RGBA'))
+
+		while 'elements' not in model_data:
+			if 'parent' in model_data:
+				modelname = model_data['parent']
+				modelpath = path + MODELS + modelname + '.json'
 				json_model_data = open(modelpath).read()
 				model_data = json.loads(json_model_data);
-
-				for i in model_data['textures']:
-					texturepath = path + TEXTURES + model_data['textures'][i] + '.png'
-					self._textures.append(misc.imread(texturepath))
-
-				while 'parent' in model_data:
-				#if 'parent' in model_data:
-					modelname = model_data['parent']
-					modelpath = path + MODELS + modelname + '.json'
-					json_model_data = open(modelpath).read()
-					model_data = json.loads(json_model_data);
-				self._model = model_data.get('elements')
+		if 'elements' in model_data:
+			self._model = model_data['elements']
+			
 				
-				break
 
 	def toNumpyArray(self):
-		color = np.asarray([texture for texture in self._textures]).mean(axis=(0,1,2))/256.
+		name_id = self.minecraft_id.getID('new')[0]
+		variant_id = self.minecraft_id.getID('new')[1]
+
+		color = np.asarray([texture.mean(axis=(0,1))/256. for texture in self._textures]).mean(axis = 0)
 
 		volume = np.sum(np.prod(
 			np.asarray([element['to'] for element in self._model]) - np.asarray([element['from'] for element in self._model]),
@@ -70,7 +78,12 @@ class MinecraftBlock(Tile):
 			variant_id.get('facing') == 'east' or variant_id.get('axis') == 'z'
 			])
 
-		return np.concatenate((color,volume,orientation))
+		shapes = np.asarray([[element['to'],element['from']] for element in self._model]).flatten()/16.
+
+		filler = np.zeros(96)
+		filler[:shapes.shape[0]] = shapes
+
+		return np.concatenate((color,orientation,volume,filler))
 
 class MinecraftBlockSetLoader(TileSetLoader):
 	def __init__(self):
@@ -83,13 +96,16 @@ class MinecraftBlockSetLoader(TileSetLoader):
 			data = json.loads(json_data)
 			print file_path
 			name_id = re.findall(r'([a-z_]*).json$',file_path)[0]
-			for variant_id in data['variants']:
-				block = MinecraftBlock(MinecraftBlockID(name = name_id,variant = variant_id))
+			if data.get('multipart') is not None:
+				block = MinecraftBlock(MinecraftBlockID(name = name_id,variant = 'normal'))
 				block.loadFromFile(path)
 				self._set.add(block)
+			if data.get('variants') is not None:
+				for variant_id in data['variants']:
+					block = MinecraftBlock(MinecraftBlockID(name = name_id,variant = variant_id))
+					block.loadFromFile(path)
+					self._set.add(block)
 
 
 	def toNumpyArray(self):
-		print self._set
-		#block_element_set = Set([(element['from'],element['to']) for element in block._model for block in self._set])
 		return np.asarray([block.toNumpyArray() for block in self._set])

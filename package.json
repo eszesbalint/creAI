@@ -1,0 +1,19 @@
+{
+  "name": "creAI",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "1.7.6"
+  },
+  "dependencies": {
+    "zerorpc": "git+https://github.com/fyears/zerorpc-node.git"
+  }
+}

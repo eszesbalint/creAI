@@ -1,1 +1,8 @@
 node_modules/
+tiles/blockstates/
+tiles/models/
+tiles/textures/
+*.pyc
+*.h5
+*.schematic
+*.gz

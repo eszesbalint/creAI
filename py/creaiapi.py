@@ -1,10 +1,12 @@
 from __future__ import print_function
 import sys
+import os
 import zerorpc
 import model as CREAI
 
 
 model = CREAI.CreAIModel()
+#print(model.generate())
 
 class CreAIAPI(object):
     def generate(self, attributes):

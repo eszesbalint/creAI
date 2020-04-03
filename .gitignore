@@ -6,3 +6,6 @@ tiles/textures/
 *.h5
 *.schematic
 *.gz
+creAI/Tilemaps/MinecraftTilemaps/Geometry/models/1.14.2/*
+__pycache__
+creAI.egg-info

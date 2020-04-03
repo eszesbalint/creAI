@@ -1,7 +1,3 @@
-node_modules/
-tiles/blockstates/
-tiles/models/
-tiles/textures/
 *.pyc
 *.h5
 *.schematic
@@ -9,3 +5,4 @@ tiles/textures/
 creAI/Tilemaps/MinecraftTilemaps/Geometry/models/1.14.2/*
 __pycache__
 creAI.egg-info
+.vscode

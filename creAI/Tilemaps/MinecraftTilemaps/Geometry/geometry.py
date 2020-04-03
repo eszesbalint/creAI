@@ -2,6 +2,7 @@ from creAI.Tilemaps.MinecraftTilemaps import *
 import numpy as np
 import copy
 from PIL import Image
+import os
 
 blockstates_folder_path = os.path.join(
 	os.path.dirname(os.path.abspath(__file__)),

@@ -2,7 +2,8 @@
 *.h5
 *.schematic
 *.gz
-creAI/Tilemaps/MinecraftTilemaps/Geometry/models/1.14.2/*
+creAI/plugins/file_manager/formats/tilemaps/minecraft_tilemaps/geometry/models/1.14.2/*
+creAI/plugins/style_transfer/tile_encoder/models/*
 __pycache__
 creAI.egg-info
 .vscode

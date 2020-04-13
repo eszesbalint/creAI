@@ -10,6 +10,7 @@ setup(
     install_requires=[
         'Eel',
         'Pillow',
-        'numpy'
+        'numpy',
+	'tensorflow>=2.0.0'
     ]
     )

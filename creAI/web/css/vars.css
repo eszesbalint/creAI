@@ -1,0 +1,25 @@
+:root {
+	--bg-color: #524f57;
+	--main-bg-color: #fbfbfb;
+	--active-bg-color: rgba(48, 46, 53, 0.8);
+	--plugin-bg-color: var(--active-bg-color);
+	--icon-bg-color: var(--main-bg-color);
+	--active-icon-bg-color: var(--active-bg-color);
+	--code-bg-color: black;
+	--bg-blur: blur(40px);
+	
+	--accent-color: #b9e1dc;
+	--error-color: #f38181;
+	--border-color: #929aab;
+	--icon-color: #f38181;
+	--active-text-color: #6e6e7a;
+	--main-text-color: #756c83;
+	--plugin-text-color: var(--active-text-color);;
+	--active-icon-color: #f38181;
+	--code-text-color: #b9e1dc;
+
+	--border-radius: 5px;
+	--border-thickness: 0px;
+
+	--scaling-factor: 0.8;
+}

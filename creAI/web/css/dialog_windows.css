@@ -1,0 +1,94 @@
+@keyframes window_fadein {
+	0% {
+		transform: scale(0);
+		transform: translate(-50%, 500%);
+	}
+	70% {
+		transform: scale(1.05);
+		transform: translate(-50%, -70%);
+	}
+	100% {
+		transform: scale(1);
+		transform: translate(-50%, -50%);
+	}
+}
+
+.dialog_window {
+
+	display: block;
+
+	position: fixed;
+	top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+	padding: 0px;
+
+
+	z-index: 3;
+
+	/*border: 2px solid white;*/
+  font-family: 'Nunito', sans-serif;
+
+	font-size:1em;
+	font-weight: bold;
+	color: var(--plugin-text-color);
+	text-decoration: none;
+
+	border-radius: var(--border-radius);
+	background-color: var(--plugin-bg-color);
+	backdrop-filter: var(--bg-blur);
+	box-shadow: 0px 0px calc(50px * var(--scaling-factor)) rgba(0,0,0,0.2);
+
+	animation: window_fadein 0.5s ease-out normal backwards;
+}
+
+.dialog_window_grid {
+	width: calc(calc(50px * var(--scaling-factor)) * 11 + calc(5px * var(--scaling-factor)) * 10 );
+	pointer-events: auto;
+
+	padding: 0px;
+	margin: 0px;
+	 
+	border-bottom: calc(1.5px * var(--scaling-factor)) solid var(--plugin-text-color);
+
+ 	display: grid;
+ 	grid-template:
+ 		"window_title window_title window_title window_title window_title window_title window_title window_title window_title window_title close_button" calc(50px * var(--scaling-factor)) 
+ 		;
+ 	grid-template-columns: repeat(11, 1fr);
+ 	grid-gap: calc(5px * var(--scaling-factor));
+
+ 	z-index: 2;
+}
+
+.dialog_window_body_grid {
+
+	width: calc(calc(50px * var(--scaling-factor)) * 11 + calc(5px * var(--scaling-factor)) * 10 );
+	pointer-events: auto;
+
+	padding: 0px;
+ 	margin: 0px;
+
+ 	display: grid;
+
+ 	z-index: 2;
+}
+
+.dialog_window_grid > h1{
+	grid-area: window_title;
+	text-align: left;
+	width: auto;
+	margin-left: calc(25px * var(--scaling-factor));
+	color: var(--error-color);
+	align-items: center;
+    justify-content: center;
+}
+
+.dialog_window_body_grid > p{
+	margin: calc(25px * var(--scaling-factor));
+}
+
+.dialog_window_grid > .menu_element{
+	grid-area: close_button;
+}

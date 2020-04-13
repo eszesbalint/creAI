@@ -1,5 +1,5 @@
 import creAI.globals
-from creAI.plugins.file_manager.file_manager import delete, load, read, select
+from creAI.plugins.file_manager.file_functions import delete, load, read, select
 
 if not creAI.globals.cli_mode:
     import creAI.ui

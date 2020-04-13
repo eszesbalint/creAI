@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 
-import creAI.plugins.file_manager.formats.tilemaps.minecraft_tilemaps.nbt.nbt as named_binary_tag
+from creAI.plugins.file_manager.formats.tilemaps.minecraft_tilemaps import nbt
 from creAI.plugins.file_manager.formats.tilemaps import ID, Tile, Tilemap
 
 
@@ -46,7 +46,7 @@ class Schematic(object):
     @classmethod
     def load(cls, file_name: str = None, raw_data=None) -> Minecraft_Tilemap:
         import time
-        root_tag = named_binary_tag.load(file_name, raw_data)
+        root_tag = nbt.load(file_name, raw_data)
         h = root_tag["Height"].payload
         l = root_tag["Length"].payload
         w = root_tag["Width"].payload
@@ -102,8 +102,8 @@ class Schematic(object):
         return Minecraft_Tilemap(tiles)
 
     @classmethod
-    def load_as_nbt(cls, file_name: str = None, raw_data=None) -> named_binary_tag.TAG:
-        return named_binary_tag.load(file_name, raw_data)
+    def load_as_nbt(cls, file_name: str = None, raw_data=None) -> nbt.TAG:
+        return nbt.load(file_name, raw_data)
 
     @classmethod
     def save(cls, tile_map: Minecraft_Tilemap, path: str):
@@ -111,37 +111,37 @@ class Schematic(object):
         swapped_tile_map = np.swapaxes(tile_map, 0, 1)
         swapped_tile_map = np.swapaxes(swapped_tile_map, 1, 2)
         # Creating root tag
-        root_tag = named_binary_tag.TAG_Compound(name='Schematic')
+        root_tag = nbt.TAG_Compound(name='Schematic')
         # Building Palette tag
         tile_set = set(tile_map.flat)
-        palette_tag = named_binary_tag.TAG_Compound(name='Palette')
+        palette_tag = nbt.TAG_Compound(name='Palette')
         palette_payload = []
         numeric_id = 0
         for tile in tile_set:
-            int_tag = named_binary_tag.TAG_Int(
+            int_tag = nbt.TAG_Int(
                 name=str(tile), payload=numeric_id)
             palette_payload.append(int_tag)
             numeric_id += 1
         palette_tag.payload = palette_payload
         # Creating PaletteMax tag
-        palette_max_tag = named_binary_tag.TAG_Int(
+        palette_max_tag = nbt.TAG_Int(
             name='PaletteMax', payload=numeric_id)
         # Creating Width tag
-        width_tag = named_binary_tag.TAG_Short(
+        width_tag = nbt.TAG_Short(
             name='Width', payload=tile_map.shape[0])
         # Creating Height tag
-        height_tag = named_binary_tag.TAG_Short(
+        height_tag = nbt.TAG_Short(
             name='Height', payload=tile_map.shape[1])
         # Creating Length tag
-        length_tag = named_binary_tag.TAG_Short(
+        length_tag = nbt.TAG_Short(
             name='Length', payload=tile_map.shape[2])
         # Creating Version tag
-        version_tag = named_binary_tag.TAG_Int(name='Version', payload=2)
+        version_tag = nbt.TAG_Int(name='Version', payload=2)
         # Creating DataVersion tag
-        data_version_tag = named_binary_tag.TAG_Int(
+        data_version_tag = nbt.TAG_Int(
             name='DataVersion', payload=1976)
         # Creating BlockData tag
-        block_data_tag = named_binary_tag.TAG_Byte_Array(name='BlockData')
+        block_data_tag = nbt.TAG_Byte_Array(name='BlockData')
         bytes_ = []
         for tile in swapped_tile_map.flat:
             numeric_id = palette_tag[str(tile)].payload
@@ -167,4 +167,4 @@ class Schematic(object):
             version_tag,
             data_version_tag,
         ]
-        named_binary_tag.save(root_tag, path)
+        nbt.save(root_tag, path)

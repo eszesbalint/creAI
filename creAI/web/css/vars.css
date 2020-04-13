@@ -6,7 +6,7 @@
 	--icon-bg-color: var(--main-bg-color);
 	--active-icon-bg-color: var(--active-bg-color);
 	--code-bg-color: black;
-	--bg-blur: blur(40px);
+	--bg-blur: none;
 	
 	--accent-color: #b9e1dc;
 	--error-color: #f38181;

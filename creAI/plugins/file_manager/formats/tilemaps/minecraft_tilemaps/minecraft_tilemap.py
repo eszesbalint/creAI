@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 
-import creAI.plugins.file_manager.formats.tilemaps.minecraft_tilemaps.nbt as named_binary_tag
+import creAI.plugins.file_manager.formats.tilemaps.minecraft_tilemaps.nbt.nbt as named_binary_tag
 from creAI.plugins.file_manager.formats.tilemaps import ID, Tile, Tilemap
 
 
@@ -118,22 +118,28 @@ class Schematic(object):
         palette_payload = []
         numeric_id = 0
         for tile in tile_set:
-            int_tag = named_binary_tag.TAG_Int(name=str(tile), payload=numeric_id)
+            int_tag = named_binary_tag.TAG_Int(
+                name=str(tile), payload=numeric_id)
             palette_payload.append(int_tag)
             numeric_id += 1
         palette_tag.payload = palette_payload
         # Creating PaletteMax tag
-        palette_max_tag = named_binary_tag.TAG_Int(name='PaletteMax', payload=numeric_id)
+        palette_max_tag = named_binary_tag.TAG_Int(
+            name='PaletteMax', payload=numeric_id)
         # Creating Width tag
-        width_tag = named_binary_tag.TAG_Short(name='Width', payload=tile_map.shape[0])
+        width_tag = named_binary_tag.TAG_Short(
+            name='Width', payload=tile_map.shape[0])
         # Creating Height tag
-        height_tag = named_binary_tag.TAG_Short(name='Height', payload=tile_map.shape[1])
+        height_tag = named_binary_tag.TAG_Short(
+            name='Height', payload=tile_map.shape[1])
         # Creating Length tag
-        length_tag = named_binary_tag.TAG_Short(name='Length', payload=tile_map.shape[2])
+        length_tag = named_binary_tag.TAG_Short(
+            name='Length', payload=tile_map.shape[2])
         # Creating Version tag
         version_tag = named_binary_tag.TAG_Int(name='Version', payload=2)
         # Creating DataVersion tag
-        data_version_tag = named_binary_tag.TAG_Int(name='DataVersion', payload=1976)
+        data_version_tag = named_binary_tag.TAG_Int(
+            name='DataVersion', payload=1976)
         # Creating BlockData tag
         block_data_tag = named_binary_tag.TAG_Byte_Array(name='BlockData')
         bytes_ = []

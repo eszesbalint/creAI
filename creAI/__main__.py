@@ -8,19 +8,8 @@
 #breakpoint()
 
 
-
-
-def main():
-	import creAI.globals
-	creAI.globals.cli_mode = False
-	import eel
-	import creAI.ui
-	eel.init('web')
-	eel.start('index.html', block=False)
-	import creAI.plugins
-	while True:
-		eel.sleep(10)
+import creAI.app
 
 if __name__ == '__main__':
-	main()
+	creAI.app.run()
 

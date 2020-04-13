@@ -1,5 +1,7 @@
+import eel
+
 import creAI.globals
-from creAI.ui.helper_functions import *
+from creAI.ui.helper_functions import toggle_plugin_visibility, function_to_script, remove_ui_element
 
 
 class UI_Element(object):
@@ -74,12 +76,12 @@ class Dialog_Window(UI_Element):
         eel.add_DOM_element(grid, 'h1', {'id': title})
         eel.append_text(title, title_str)
         #close_button = creAI.globals.gen_id()
-        #close_button_script = '{}.{}(\'{}\')'.format(
+        # close_button_script = '{}.{}(\'{}\')'.format(
         #    'eel',
         #    'remove_ui_element',
         #    self.id
-        #)
-        #eel.add_DOM_element(
+        # )
+        # eel.add_DOM_element(
         #    grid,
         #    'div',
         #    {
@@ -87,16 +89,16 @@ class Dialog_Window(UI_Element):
         #        'id': close_button,
         #        'onclick': close_button_script
         #    }
-        #)
+        # )
         #eel.add_DOM_element(close_button, 'div', {'class': 'close icon'})
         Menu_Element(
-            text = 'Close',
-            icon_class = 'close icon', 
-            script = function_to_script(
-                remove_ui_element, 
+            text='Close',
+            icon_class='close icon',
+            script=function_to_script(
+                remove_ui_element,
                 self.id
-                )
-            ).create(parent_id = grid)
+            )
+        ).create(parent_id=grid)
         body_grid = creAI.globals.gen_id()
         eel.add_DOM_element(
             window,
@@ -134,6 +136,7 @@ class Paragraph(UI_Element):
         eel.add_DOM_element(parent_id, 'p', {'id': self.id})
         eel.append_text(self.id, text)
 
+
 class Title(UI_Element):
     _required = ['text']
     _additional = ['parent_id']
@@ -143,6 +146,7 @@ class Title(UI_Element):
         text = self.property['text']
         eel.add_DOM_element(parent_id, 'h1', {'id': self.id})
         eel.append_text(self.id, text)
+
 
 class Button(UI_Element):
     _optional = ['script', 'text', 'icon_class', 'type_']
@@ -169,7 +173,8 @@ class Button(UI_Element):
             )
         if 'text' in self.property:
             eel.append_text(self.id, self.property['text'])
-        
+
+
 class Menu_Element(UI_Element):
     _optional = ['script', 'text', 'icon_class', 'tag']
     _additional = ['parent_id']
@@ -206,7 +211,7 @@ class Menu_Element(UI_Element):
             eel.add_DOM_element(
                 menu_element,
                 'div',
-                {'class': 'icon wrapper', 'id' : icon_wrapper}
+                {'class': 'icon wrapper', 'id': icon_wrapper}
             )
             eel.add_DOM_element(
                 icon_wrapper,
@@ -225,15 +230,15 @@ class Plugin(UI_Element):
     def construct_DOM_elements(self):
         menu_element_id = creAI.globals.gen_id()
         menu_element = Menu_Element(
-            text = self.property['title'],
-            icon_class = self.property['icon_class'], 
-            script = function_to_script(
-                toggle_plugin_visibility, 
+            text=self.property['title'],
+            icon_class=self.property['icon_class'],
+            script=function_to_script(
+                toggle_plugin_visibility,
                 menu_element_id
-                )
             )
+        )
         menu_element.id = menu_element_id
-        menu_element.create(parent_id = 'plugin_menu')
+        menu_element.create(parent_id='plugin_menu')
 
         properties_tab = creAI.globals.gen_id()
         eel.add_DOM_element(
@@ -247,13 +252,13 @@ class Plugin(UI_Element):
         eel.append_text(title, self.property['title'])
         description = creAI.globals.gen_id()
         eel.add_DOM_element(
-            properties_tab, 
-            'p', 
+            properties_tab,
+            'p',
             {
                 'class': 'italic',
                 'id': description
-                }
-            )
+            }
+        )
         eel.append_text(description, self.property['description'])
         for element in self.property['content']:
             element.create(parent_id=properties_tab)
@@ -291,7 +296,7 @@ class File_Tag(UI_Element):
         eel.add_DOM_element(
             self.id,
             'div',
-            {'class': 'icon wrapper', 'id' : icon_wrapper}
+            {'class': 'icon wrapper', 'id': icon_wrapper}
         )
         eel.add_DOM_element(
             icon_wrapper,
@@ -299,18 +304,19 @@ class File_Tag(UI_Element):
             {
                 'class': 'close icon',
                 'onclick': onclick_script_2,
-                }
+            }
         )
         title = creAI.globals.gen_id()
         eel.add_DOM_element(
-            self.id, 
-            'p', 
+            self.id,
+            'p',
             {
                 'id': title,
                 'onclick': onclick_script_1,
-                }
-            )
+            }
+        )
         eel.append_text(title, self.property['text'])
+
 
 class File_Open_Dialog(UI_Element):
     _required = ['script']
@@ -322,24 +328,26 @@ class File_Open_Dialog(UI_Element):
     def destroy(self):
         pass
 
+
 class Form(UI_Element):
     _required = ['content', 'script']
     _additional = ['parent_id']
+
     def construct_DOM_elements(self):
         onsubmit_script = ''
         if 'script' in self.property:
             onsubmit_script = 'return read_form(\'{}\', \'{}\')'.format(
-                self.id, 
+                self.id,
                 self.property['script'],
-                )
+            )
         eel.add_DOM_element(
             self.property['parent_id'],
             'form',
             {
                 'id': self.id,
                 'onsubmit': onsubmit_script,
-                }
-            )
+            }
+        )
         for element in self.property['content']:
             element.create(parent_id=self.id)
 
@@ -348,10 +356,12 @@ class Form(UI_Element):
             element.destroy()
         eel.remove_DOM_element(self.id)
 
+
 class Input(UI_Element):
     _required = ['type_', 'name']
     _optional = ['value', 'label', 'min_', 'max_']
     _additional = ['parent_id']
+
     def construct_DOM_elements(self):
         value = ''
         if 'value' in self.property:
@@ -370,8 +380,8 @@ class Input(UI_Element):
                 {
                     'for': self.id,
                     'id': label,
-                    }
-                )
+                }
+            )
             eel.append_text(label, self.property['label'])
         eel.add_DOM_element(
             self.property['parent_id'],
@@ -383,13 +393,15 @@ class Input(UI_Element):
                 'value': value,
                 'min': min_,
                 'max': max_,
-                }
-            )
-        
+            }
+        )
+
+
 class Number_Input(UI_Element):
     _required = ['name']
     _optional = ['value', 'label', 'min_', 'max_']
     _additional = ['parent_id']
+
     def construct_DOM_elements(self):
         value = ''
         if 'value' in self.property:
@@ -408,29 +420,29 @@ class Number_Input(UI_Element):
                 {
                     'for': self.id,
                     'id': label,
-                    }
-                )
+                }
+            )
             eel.append_text(label, self.property['label'])
         wrapper = creAI.globals.gen_id()
         eel.add_DOM_element(
             self.property['parent_id'],
             'div',
-            {   
+            {
                 'class': 'number_input_wrapper',
                 'id': wrapper,
-                }
-            )
+            }
+        )
         eel.add_DOM_element(
             wrapper,
             'button',
-            {   
+            {
                 'type': 'button',
                 'class': 'decrement',
                 'onclick': 'document.getElementById(\'{}\').stepDown()'.format(
                     self.id
-                    ),
-                }
-            )
+                ),
+            }
+        )
         eel.add_DOM_element(
             wrapper,
             'input',
@@ -441,19 +453,20 @@ class Number_Input(UI_Element):
                 'value': value,
                 'min': min_,
                 'max': max_,
-                }
-            )
+            }
+        )
         eel.add_DOM_element(
             wrapper,
             'button',
-            {   
+            {
                 'type': 'button',
                 'class': 'increment',
                 'onclick': 'document.getElementById(\'{}\').stepUp()'.format(
                     self.id
-                    ),
-                }
-            )
+                ),
+            }
+        )
+
 
 class Code_Block(UI_Element):
     _required = ['code']
@@ -463,14 +476,15 @@ class Code_Block(UI_Element):
         parent_id = self.property['parent_id']
         code = self.property['code']
         eel.add_DOM_element(
-            parent_id, 
-            'div', 
+            parent_id,
+            'div',
             {
                 'id': self.id,
                 'class': 'code_block',
-                }
-            )
-        Paragraph(text = code).create(parent_id = self.id)
+            }
+        )
+        Paragraph(text=code).create(parent_id=self.id)
+
 
 class Button_List(UI_Element):
     _required = ['content']
@@ -482,16 +496,16 @@ class Button_List(UI_Element):
                 raise ValueError('Button_List can only contain Buttons!')
         parent_id = self.property['parent_id']
         eel.add_DOM_element(
-            parent_id, 
-            'div', 
+            parent_id,
+            'div',
             {
                 'id': self.id,
                 'class': 'button_list',
-                }
-            )
+            }
+        )
         for element in self.property['content']:
             element.create(parent_id=self.id)
-    
+
     def destroy(self):
         for element in self.property['content']:
             element.destroy()

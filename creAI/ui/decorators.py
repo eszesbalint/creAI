@@ -1,6 +1,8 @@
 import creAI.globals
-from creAI.ui.ui_elements import *
+from creAI.ui.ui_elements import Dialog_Window, Paragraph, Progress_Bar, Code_Block, Button_List, Button
+from creAI.ui.helper_functions import function_to_script, remove_ui_element
 import traceback
+
 
 def display_loading_animation(label: str):
     def decorator(function):
@@ -34,24 +36,26 @@ def display_error_message_on_error(function):
             if not creAI.globals.cli_mode:
                 id_ = creAI.globals.gen_id()
                 d_w = Dialog_Window(
-                    title = 'Error while executing {}!'.format(function.__name__),
-                    content = [
-                        Paragraph(text = '{}: {}'.format(type(e).__name__ ,str(e))),
-                        Code_Block(code = traceback.format_exc()),
+                    title='Error while executing {}!'.format(
+                        function.__name__),
+                    content=[
+                        Paragraph(text='{}: {}'.format(
+                            type(e).__name__, str(e))),
+                        Code_Block(code=traceback.format_exc()),
                         Button_List(
-                            content = [
+                            content=[
                                 Button(
-                                    text = 'OK',
-                                    script = function_to_script(
-                                        remove_ui_element, 
+                                    text='OK',
+                                    script=function_to_script(
+                                        remove_ui_element,
                                         id_
-                                        )
-                                    ),
-                                Button(text = 'Cancel'),
-                                ]
-                            ),
-                        ]
-                    )
+                                    )
+                                ),
+                                Button(text='Cancel'),
+                            ]
+                        ),
+                    ]
+                )
                 d_w.id = id_
                 d_w.create()
             else:

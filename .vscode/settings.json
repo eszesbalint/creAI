@@ -1,3 +1,5 @@
 {
-    "python.pythonPath": "/home/ebalint96/.conda/envs/eel_pyinstaller_test/bin/python"
+    "python.pythonPath": "/home/ebalint96/.conda/envs/creAI/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
 }

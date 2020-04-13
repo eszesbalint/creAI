@@ -11,6 +11,6 @@ setup(
         'Eel',
         'Pillow',
         'numpy',
-	'tensorflow>=2.0.0'
+	'tensorflow==2.2.0rc2'
     ]
     )

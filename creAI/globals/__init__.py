@@ -1,6 +1,8 @@
 import random
 import string
 
+cli_mode = True
+
 plugins = {}
 selected_plugin_id = None
 

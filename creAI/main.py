@@ -7,11 +7,14 @@
 #ptvsd.wait_for_attach()
 #breakpoint()
 
-import creAI.ui
 
-@creAI.ui.display_error_message_on_error
+
+
 def main():
+	import creAI.globals
+	creAI.globals.cli_mode = False
 	import eel
+	import creAI.ui
 	eel.init('web')
 	eel.start('index.html', block=False)
 	import creAI.plugins

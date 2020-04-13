@@ -5,7 +5,7 @@ import kerastuner as kt
 
 class Transformer_Hyper_Model(kt.HyperModel):
     def __init__(self):
-
+        pass
     def build(self, hyper_parameters):
         #Parameters
         num_conv_blocks = hyper_parameters.Int(

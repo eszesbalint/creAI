@@ -1,7 +1,7 @@
 
 
 
-import creAI.plugins.file_manager.file_manager as FileManager
+import creAI.plugins.file_manager.file_functions as FileManager
 
 
 import creAI.globals

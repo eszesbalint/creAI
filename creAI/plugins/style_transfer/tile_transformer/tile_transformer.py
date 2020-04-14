@@ -7,8 +7,8 @@ import creAI.globals
 
 
 class Transformer_Hyper_Model(kt.HyperModel):
-    def __init__(self):
-        pass
+    def __init__(self, vae_model):
+        self.vae_model = vae_model
 
     def build(self, hyper_parameters):
         # Parameters
@@ -58,7 +58,12 @@ class Transformer_Hyper_Model(kt.HyperModel):
                 batch_normalization=True
             )
 
-        fcn_model = tf.keras.models.Model(input_, output)
+        transformer_model = tf.keras.models.Model(
+            input_,
+            self._decoder(output),
+        )
+
+        return transformer_model
 
     @staticmethod
     def _conv_block(input_, filters, kernel_size, strides=1,
@@ -111,6 +116,34 @@ class Transformer_Hyper_Model(kt.HyperModel):
                                  strides=1, padding='same', activation='relu',
                                  dropout_rate=0.01)
         return conv_3 + input_
+
+    def _decoder(self, input_):
+        for layer in self.vae_model.layers:
+            layer.trainable = False
+        decoder = self.vae_model.get_layer('model_1')
+        output = tf.keras.layers.Lambda(
+            lambda x: tf.map_fn(
+                lambda x: tf.concat(
+                    tf.unstack(
+                        tf.map_fn(
+                            lambda x: tf.concat(
+                                tf.unstack(
+                                    tf.map_fn(
+                                        lambda x: tf.concat(
+                                            tf.unstack(
+                                                decoder(x)
+                                            ),
+                                            -2),
+                                        x)
+                                ),
+                                -3),
+                            x)
+                    ),
+                    -4),
+                x),
+            name='decoder'
+        )(input_)
+        return output
 
     @classmethod
     def train(cls):

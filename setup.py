@@ -11,7 +11,9 @@ setup(
         'Eel',
         'Pillow',
         'numpy',
-            'tensorflow>=2.0.0',
-        'keras-tuner',
-    ]
+            'tensorflow==2.1.0',
+    ],
+    extras_require={
+        'training': ['keras-tuner', 'dirt @ git+https://github.com/pmh47/dirt.git'],
+    }
 )

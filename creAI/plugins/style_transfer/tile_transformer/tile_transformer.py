@@ -1,29 +1,18 @@
+import creAI.globals
 import numpy as np
 
-import tensorflow as tf
-import kerastuner as kt
-
-import creAI.globals
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 
-class Transformer_Hyper_Model(kt.HyperModel):
+class Transformer_Model():
     def __init__(self, vae_model):
         self.vae_model = vae_model
 
-    def build(self, hyper_parameters):
+    def build(self,):
         # Parameters
-        num_conv_blocks = hyper_parameters.Int(
-            'conv_blocks',
-            min_value=1,
-            max_value=3,
-            step=1
-        )
-        num_res_blocks = hyper_parameters.Int(
-            'res_blocks',
-            min_value=3,
-            max_value=8,
-            step=1
-        )
+        num_conv_blocks = 2
+        num_res_blocks = 3
         num_filters = [3, 32, 64, 128, 256, 512]
         kernel_sizes = [9, 3, 3, 3, 3, 3]
 
@@ -146,19 +135,6 @@ class Transformer_Hyper_Model(kt.HyperModel):
         return output
 
     @classmethod
-    def train(cls):
-        hyper_param_tuner = kt.tuners.RandomSearch(
-            cls(),
-            objective='val_loss',
-            max_trials=20,
-            executions_per_trial=1,
-            project_name=creAI.globals.gen_rand_id(10),
-            directory=model_path,
-        )
-        hyper_param_tuner.search_space_summary()
-        # autoencoder.fit(training_data, training_data,
-        #                epochs=epochs, batch_size=batch_size)
+    def train(cls, vae_model, renderer, perceptual_model):
 
-        hyper_param_tuner.search(training, training,
-                                 epochs=40, batch_size=batch_size, validation_data=(val, val))
-        hyper_param_tuner.results_summary()
+        model = cls(vae_model, renderer, perceptual_model).build()

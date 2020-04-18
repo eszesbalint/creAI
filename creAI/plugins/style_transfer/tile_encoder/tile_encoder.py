@@ -2,27 +2,25 @@ import os
 
 import numpy as np
 
-from tensorflow.keras import backend as K
-from tensorflow.keras.layers import (Dense, GaussianNoise,
-                                     Input, Lambda, BatchNormalization, Activation)
-from tensorflow.keras.losses import mean_squared_error, binary_crossentropy
-from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
+import tensorflow.compat.v1 as tf
 
-from kerastuner.tuners import RandomSearch
-from kerastuner import HyperModel
+from tensorflow.compat.v1.keras import backend as K
+from tensorflow.compat.v1.keras.layers import (Dense, GaussianNoise,
+                                               Input, Lambda, BatchNormalization, Activation)
+from tensorflow.compat.v1.keras.losses import mean_squared_error, binary_crossentropy
+from tensorflow.compat.v1.keras.models import Model
+from tensorflow.compat.v1.keras.optimizers import Adam
 
-from sklearn.manifold import TSNE
 
 import creAI.globals
 
 
-class VAE_Hyper_Model(HyperModel):
+class VAE_Model():
     def __init__(self, input_size, latent_dim):
         self.input_size = input_size
         self.latent_dim = latent_dim
 
-    def build(self, hyper_parameters):
+    def build(self):
         input_vector = Input(shape=(self.input_size,))
         intermadiate_dim = self.latent_dim * 2
 
@@ -60,9 +58,7 @@ class VAE_Hyper_Model(HyperModel):
                 encoder(input_vector)[2]), mean, log_var)
         )
         autoencoder.compile(
-            optimizer=Adam(
-                hyper_parameters.Choice('lr', values=[0.1, 0.01, 0.001, 0.001])
-            ),
+            optimizer=Adam(),
             metrics=['accuracy'],
         )
 
@@ -97,25 +93,9 @@ class VAE_Hyper_Model(HyperModel):
         np.random.shuffle(training_data)
         training, val = training_data[:80, :], training_data[80:, :]
 
-        hyper_parameter_tuner = RandomSearch(
-            cls(input_size, latent_dim),
-            objective='val_loss',
-            max_trials=20,
-            executions_per_trial=1,
-            project_name=creAI.globals.gen_rand_id(10),
-            directory=model_path,
-        )
-        hyper_parameter_tuner.search_space_summary()
-        # autoencoder.fit(training_data, training_data,
-        #                epochs=epochs, batch_size=batch_size)
+        model = cls(input_size, latent_dim).build()
 
-        hyper_parameter_tuner.search(training, training,
-                                     epochs=40, batch_size=batch_size, validation_data=(val, val))
-        hyper_parameter_tuner.results_summary()
+        model.fit(training, training,
+                  epochs=epochs, batch_size=batch_size, validation_data=(val, val))
 
-        tuned_model = hyper_parameter_tuner.get_best_models(num_models=1)[0]
-        tuned_model.summary()
-        tuned_model.fit(training, training,
-                        epochs=epochs, batch_size=batch_size, validation_data=(val, val))
-
-        return tuned_model
+        return model

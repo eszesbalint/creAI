@@ -10,8 +10,8 @@ from creAI.plugins.file_manager.formats.tilemaps.minecraft_tilemaps import (Mine
 blockstates_folder_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     'models',
-    '1.14.2',
-    '1.14.2',
+    '1.15.2',
+    '1.15.2',
     'assets',
     'minecraft',
     'blockstates'
@@ -20,8 +20,8 @@ blockstates_folder_path = os.path.join(
 blockmodels_folder_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     'models',
-    '1.14.2',
-    '1.14.2',
+    '1.15.2',
+    '1.15.2',
     'assets',
     'minecraft',
     'models',
@@ -31,8 +31,8 @@ blockmodels_folder_path = os.path.join(
 blocktextures_folder_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     'models',
-    '1.14.2',
-    '1.14.2',
+    '1.15.2',
+    '1.15.2',
     'assets',
     'minecraft',
     'textures',

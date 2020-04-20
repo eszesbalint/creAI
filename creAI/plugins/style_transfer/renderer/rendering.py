@@ -5,19 +5,81 @@ import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 
 
-class Renderer():
-    def __init__(self, ):
+class Tile_Renderer(tf.keras.layers.Layer):
+    """Differentiable tilemap renderer model"""
+    def __init__(self, output_dim):
+        self.output_dim = output_dim
 
-    def build():
+    def build(self):
+        """Builds the computational graph for differentiable rendering
+        
+        Returns:
+            tf.keras.Model
+        """
 
-    @classmethod
+        input_ = tf.keras.layers.Input(shape=(None, None, None, 1))
+        camera_angle = tf.keras.layers.Input(shape=(3,))
+
+        output = self._render(input_, camera_angle)
+        
+        renderer = tf.keras.Model([input_, camera_angle], output)
+
+    def _render():
+        
+
+    @staticmethod
     def _geom_from_vec_repr(input_):
-        v_cube = [[x, y, z] for z in [-1, 1] for y in [-1, 1] for x in [-1, 1]]
-        q_cube = [
+        """ Transforms vector representation to vertices, vertex colors and faces.
+
+        Args:
+            input_: a batch of 3D tensors of 1D vector representations, 5D in total
+
+        Returns:
+            v: vertices of the tilemap
+            c: vertex colors of the tilemap
+            f: faces of the tilemap, defined by indices of vertices
+
+        Each vector represents the geometric shape and color of each
+        tile in the tilemap.
+        The geometric shape of a tile is defined by axis aligned boxes (cuboids).
+        The cuboids are defined by two coordinates (from, to) and 6 RGB colors,
+        8 float vectors of length 3 in total. The values are clamped between 
+        0 and 1.
+
+        Each tile has the same number of cuboids, but some of the cuboids
+        will have negligibly small sizes:
+        to - from ~ 0.
+        """
+
+        b = input_.shape[0]         # Batch size
+        w = input_.shape[-4]
+        h = input_.shape[-3] 
+        l = input_.shape[-2]
+        e = input_.shape[-1] / 8*3  # Number of axis aligned cuboid elements in a minecraft tile model
+
+        # Reshaping the vector representations of minecraft tiles
+        # from (e*8*3,) to (e,8,1,3)
+        elements = tf.reshape(input_, [b,w,h,l,e,8,1,3])
+
+        # Extracting the location of the axis aligned boxes' corners
+        from_ = elements[:,:,:,:,:,0]
+        to = elements[:,:,:,:,:,1]
+
+        # Generating the geometry of a unit cube
+        v_cube = [[x, y, z] for z in [0, 1] for y in [0, 1] for x in [0, 1]]
+        f_cube = [
             [0, 1, 3, 2], [4, 5, 7, 6],  # back, front
             [1, 5, 4, 0], [2, 6, 7, 3],  # bottom, top
             [4, 6, 2, 0], [3, 7, 5, 1],  # left, right
         ]
+
+        # Transforming the unit cube to match the dimensions defined
+        # in from_ and to.
+        tf.reshape(v_cube, [1,1,1,1,1,8,3])
+        v = v_cube*(to-from_) + from_
+        # v's shape is now [b,w,h,l,e,8,3]
+
+        return v, c, f
 
 
 frame_width, frame_height = 1024, 1024

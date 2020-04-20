@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/home/ebalint96/anaconda3/envs/creAI/bin/python",
+    "python.pythonPath": "/usr/bin/python3.6",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true
 }

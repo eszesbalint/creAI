@@ -11,9 +11,10 @@ setup(
         'Eel',
         'Pillow',
         'numpy',
-            'tensorflow',
+        'tensorflow',
+        'deodr',
     ],
     extras_require={
-        'training': ['keras-tuner', 'dirt @ git+https://github.com/pmh47/dirt.git'],
+        'training': ['tensorflow-gpu>=1.13.0, <1.14.0', 'dirt @ git+https://github.com/pmh47/dirt.git'],
     }
 )

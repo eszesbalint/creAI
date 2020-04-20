@@ -2,14 +2,14 @@ import os
 
 import numpy as np
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-from tensorflow.compat.v1.keras import backend as K
-from tensorflow.compat.v1.keras.layers import (Dense, GaussianNoise,
+from keras import backend as K
+from keras.layers import (Dense, GaussianNoise,
                                                Input, Lambda, BatchNormalization, Activation)
-from tensorflow.compat.v1.keras.losses import mean_squared_error, binary_crossentropy
-from tensorflow.compat.v1.keras.models import Model
-from tensorflow.compat.v1.keras.optimizers import Adam
+from keras.losses import mean_squared_error, binary_crossentropy
+from keras.models import Model
+from keras.optimizers import Adam
 
 
 import creAI.globals

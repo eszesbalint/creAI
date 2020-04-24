@@ -1,4 +1,6 @@
 import tensorflow as tf
+import numpy as np
+import random
 
 class Random_Data_Generator(tf.keras.utils.Sequence):
 
@@ -10,4 +12,10 @@ class Random_Data_Generator(tf.keras.utils.Sequence):
 
     def __len__():
         return self.number_of_samples // self.batch
+
     def __data_generation(self):
+        shape = [
+            random.randint(m, M) 
+            for m, M in zip(self.min_shape, self.max_shape)
+        ]
+        x = np.zeros(shape=[self.batch_size] + shape))

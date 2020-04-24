@@ -4,65 +4,26 @@ import numpy as np
 
 import tensorflow as tf
 
-from keras import backend as K
-from keras.layers import (Dense, GaussianNoise,
-                                               Input, Lambda, BatchNormalization, Activation)
-from keras.losses import mean_squared_error, binary_crossentropy
-from keras.models import Model
-from keras.optimizers import Adam
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import (Layer, Dense)
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
 
 
 import creAI.globals
 
+class Tile_Encoder(Layer):
+    def __init__(self, output_dim=8, intermadiate_dim=16, name='tile_encoder', **kwargs):
+        super(Tile_Encoder, self).__init__(name=name, **kwargs)
+        self.intermadiate_layer = Dense(intermadiate_dim, activation='relu')
+        self.mean = Dense(output_dim)
+        self.log_var = Dense(output_dim)
 
-class VAE_Model():
-    def __init__(self, input_size, latent_dim):
-        self.input_size = input_size
-        self.latent_dim = latent_dim
-
-    def build(self):
-        input_vector = Input(shape=(self.input_size,))
-        intermadiate_dim = self.latent_dim * 2
-
-        encode_1 = Dense(intermadiate_dim, use_bias=False)(input_vector)
-        encode_1 = BatchNormalization()(encode_1)
-        encode_1 = Activation('relu')(encode_1)
-
-        encode_2 = Dense(self.latent_dim, use_bias=False)(encode_1)
-        encode_2 = BatchNormalization()(encode_2)
-        encode_2 = Activation('relu')(encode_2)
-
-        mean = Dense(self.latent_dim, name='mean',
-                     activation='linear')(encode_2)
-        log_var = Dense(self.latent_dim, name='log_var',
-                        activation='linear')(encode_2)
-
-        latent_vector = Lambda(self._sampling, output_shape=(
-            self.latent_dim,), name='z')([mean, log_var])
-
-        latent_input_vector = Input(shape=(self.latent_dim,))
-        decode_1 = Dense(intermadiate_dim, use_bias=False)(latent_input_vector)
-        decode_1 = BatchNormalization()(decode_1)
-        decode_1 = Activation('relu')(decode_1)
-        #decode_2 = Dense(256, activation='relu')(decode_1)
-        decoded = Dense(self.input_size, use_bias=False)(decode_1)
-        decoded = BatchNormalization()(decoded)
-        decoded = Activation('sigmoid')(decoded)
-
-        encoder = Model(input_vector, [mean, log_var, latent_vector])
-        decoder = Model(latent_input_vector, decoded)
-        autoencoder = Model(input_vector, decoder(encoder(input_vector)[2]))
-
-        autoencoder.add_loss(
-            self._vae_loss(input_vector, decoder(
-                encoder(input_vector)[2]), mean, log_var)
-        )
-        autoencoder.compile(
-            optimizer=Adam(),
-            metrics=['accuracy'],
-        )
-
-        return autoencoder
+    def call(self, inputs):
+        output = self.intermadiate_layer(inputs)
+        mean = self.mean(output)
+        log_var = self.log_var(output)
+        return mean, log_var, self._sampling([mean, log_var])
 
     @staticmethod
     def _sampling(args):
@@ -72,6 +33,32 @@ class VAE_Model():
         epsilon = K.random_normal(shape=(batch, dim), mean=0., stddev=1.)
         return mean + K.exp(log_var / 2) * epsilon
 
+
+class Tile_Decoder(Layer):
+    def __init__(self, output_dim, intermadiate_dim=16, name='tile_decoder', **kwargs):
+        super(Tile_Decoder, self).__init__(name=name, **kwargs)
+        self.intermadiate_layer = Dense(intermadiate_dim, activation='relu')
+        self.output_layer = Dense(output_dim, activation='sigmoid')
+
+    def call(self, inputs):
+        output = self.intermadiate_layer(inputs)
+        return self.output_layer(output)
+
+
+class Tile_VAE(Model):
+
+    def __init__(self, output_dim, intermediate_dim=64, latent_dim=32, name='tile_vae', **kwargs):
+        super(Tile_VAE, self).__init__(name=name, **kwargs)
+        self.output_dim = output_dim
+        self.latent_dim = latent_dim
+        self.encoder = Tile_Encoder(latent_dim=latent_dim, intermediate_dim=intermediate_dim)
+        self.decoder = Tile_Decoder(output_dim, intermediate_dim=intermediate_dim)
+
+    def call(self, inputs):
+        mean, log_var, code = self.encoder(inputs)
+        self.add_loss(self._kl_divergence(mean, log_var))
+        return self.decoder(code)
+
     @staticmethod
     def _kl_divergence(mean, log_var):
         return 0.5 * K.sum(
@@ -79,23 +66,9 @@ class VAE_Model():
             axis=-1,
         )
 
-    def _reconstruction_loss(self, expected_output, output):
-        return mean_squared_error(expected_output, output) * self.input_size
 
-    def _vae_loss(self, expected_output, output, mean, log_var):
-        return K.mean(self._reconstruction_loss(expected_output, output)
-                      + self._kl_divergence(mean, log_var))
 
-    @classmethod
-    def train(cls, training_data: np.ndarray, batch_size: int, epochs: int, latent_dim: int):
 
-        input_size = training_data.shape[1]
-        np.random.shuffle(training_data)
-        training, val = training_data[:80, :], training_data[80:, :]
 
-        model = cls(input_size, latent_dim).build()
 
-        model.fit(training, training,
-                  epochs=epochs, batch_size=batch_size, validation_data=(val, val))
 
-        return model

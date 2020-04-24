@@ -2,29 +2,29 @@ import math
 import numpy as np
 
 import tensorflow as tf
+from tensorflow.keras.layers import Layer
+
 
 import dirt
+import dirt.matrices
 
-class Tile_Renderer():
-    """Differentiable tilemap renderer model"""
+class Tile_Renderer(Layer):
+    """Differentiable tilemap renderer layer"""
+    def __init__(self, output_dim):
+        self.output_dim = output_dim
 
-    def __new__(cls, output_dim):
-        """Builds the computational graph for differentiable rendering
+    def call(self, inputs):
+        """Builds the computational graph for differentiable rendering"""
 
-        Returns:
-            tf.keras.Model
-        """
+        input_, camera_angle = inputs
 
-        input_ = tf.keras.layers.Input(shape=(None, None, None, 1))
-        camera_angle = tf.keras.layers.Input(shape=(3,))
-
-        v, c, f = cls._geom_from_vec_repr(input_)
+        v, c, f = self._geom_from_vec_repr(input_)
 
         # Convert vertices to homogeneous coordinates
         v = tf.concat([
             v,
             tf.ones_like(v[:, :, -1:])
-        ], axis=1)
+        ], axis=-1)
 
         # Transforming vertices from object space to world space
         v_world = tf.matmul(
@@ -34,18 +34,18 @@ class Tile_Renderer():
         view_matrix = dirt.matrices.compose(
             # translate it away from the camera
             dirt.matrices.translation([0., -1.5*100, -3.5*100]),
-            dirt.matrices.rodrigues([-0.4, 0., 0.])  # tilt the view downwards
+            #dirt.matrices.rodrigues([-0.4, 0., 0.])  # tilt the view downwards
         )
         v_camera = tf.matmul(v_world, view_matrix)
 
         # Transforming vertices from camera space to clip space
         v_clip = tf.matmul(
             v_camera,
-            cls._ortho(
+            self._ortho(
                 scaling=100.,
                 near=.1,
                 far=1000.,
-                aspect=output_dim[-2] / output_dim[-3]
+                aspect=self.output_dim[-2] / self.output_dim[-3]
             )
         )
 
@@ -53,15 +53,13 @@ class Tile_Renderer():
             vertices=v_clip,
             faces=f,
             vertex_colors=c,
-            background=tf.zeros([output_dim[-2], output_dim[-3], 3]),
-            width=output_dim[-3],
-            height=output_dim[-2],
-            channels=output_dim[-1]
+            background=tf.zeros([self.output_dim[-2], self.output_dim[-3], 3]),
+            width=self.output_dim[-3],
+            height=self.output_dim[-2],
+            channels=self.output_dim[-1]
         )
 
-        renderer = tf.keras.Model([input_, camera_angle], output)
-
-        return renderer
+        return output
 
     @staticmethod
     def _geom_from_vec_repr(input_):
@@ -87,12 +85,12 @@ class Tile_Renderer():
         to - from ~ 0.
         """
 
-        b = input_.shape[0]         # Batch size
-        w = input_.shape[-4]
-        h = input_.shape[-3]
-        l = input_.shape[-2]
+        b = tf.shape(input_)[0]         # Batch size
+        w = tf.shape(input_)[-4]
+        h = tf.shape(input_)[-3]
+        l = tf.shape(input_)[-2]
         # Number of axis aligned cuboid elements in a minecraft tile model
-        e = input_.shape[-1] / 8*3
+        e = tf.math.floordiv(tf.shape(input_)[-1] , 8*3)
 
         # Reshaping the vector representations of minecraft tiles
         # from (e*8*3,) to (e,8,1,3)
@@ -105,7 +103,7 @@ class Tile_Renderer():
         colors = elements[:, :, :, :, :, 2:]
 
         # Generating the geometry of a unit cube
-        v_cube = [[x, y, z] for z in [0, 1] for y in [0, 1] for x in [0, 1]]
+        v_cube = [[x, y, z] for z in [0., 1.] for y in [0., 1.] for x in [0., 1.]]
         v_cube = [
             [[v_cube[0], v_cube[1], v_cube[3]],
                 [v_cube[3], v_cube[2], v_cube[0]]],  # back
@@ -128,9 +126,9 @@ class Tile_Renderer():
         # v's shape is now [b,w,h,l,e,6,2,3,3]
 
         # Generating the origins of each tile
-        x = tf.reshape(tf.range(0, w, dtype=tf.float32), [w, 1, 1, 1])
-        y = tf.reshape(tf.range(0, h, dtype=tf.float32), [1, h, 1, 1])
-        z = tf.reshape(tf.range(0, l, dtype=tf.float32), [1, 1, l, 1])
+        x = tf.reshape(tf.range(0., tf.cast(w, dtype=tf.float32)), [w, 1, 1, 1])
+        y = tf.reshape(tf.range(0., tf.cast(h, dtype=tf.float32)), [1, h, 1, 1])
+        z = tf.reshape(tf.range(0., tf.cast(l, dtype=tf.float32)), [1, 1, l, 1])
         o = tf.concat([x, y, z], axis=-1)
         o = tf.reshape(o, [1, w, h, l, 1, 1, 1, 1, 3])
         o = tf.broadcast_to(o, [b, w, h, l, e, 6, 2, 3, 3])
@@ -149,7 +147,7 @@ class Tile_Renderer():
         c = tf.reshape(c, [b, w*h*l*e*6*2*3, 3])
 
         # Generating face indices
-        f = tf.range(0, w*h*l*e*6*2*3, dtype=tf.float32)
+        f = tf.range(0, w*h*l*e*6*2*3, dtype=tf.int32)
         f = tf.reshape(f, [1, w*h*l*e*6*2, 3])
         f = tf.broadcast_to(f, [b, w*h*l*e*6*2, 3])
 

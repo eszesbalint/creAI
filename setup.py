@@ -12,9 +12,8 @@ setup(
         'Pillow',
         'numpy',
         'tensorflow',
-        'deodr',
     ],
     extras_require={
-        'training': ['tensorflow-gpu>=1.13.0, <1.14.0', 'dirt @ git+https://github.com/pmh47/dirt.git'],
+        'training': ['dirt @ git+https://github.com/pmh47/dirt.git'],
     }
 )

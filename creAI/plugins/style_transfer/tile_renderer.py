@@ -1,4 +1,4 @@
-import math
+
 import numpy as np
 
 import tensorflow as tf
@@ -8,15 +8,18 @@ from tensorflow.keras.layers import Layer
 import dirt
 import dirt.matrices
 
+
 class Tile_Renderer(Layer):
     """Differentiable tilemap renderer layer"""
-    def __init__(self, output_dim):
+
+    def __init__(self, output_dim, name='tile_renderer', **kwargs):
+        super(Tile_Renderer, self).__init__(name=name, **kwargs)
         self.output_dim = output_dim
 
     def call(self, inputs):
         """Builds the computational graph for differentiable rendering"""
 
-        input_, camera_angle = inputs
+        input_ = inputs
 
         v, c, f = self._geom_from_vec_repr(input_)
 
@@ -34,7 +37,7 @@ class Tile_Renderer(Layer):
         view_matrix = dirt.matrices.compose(
             # translate it away from the camera
             dirt.matrices.translation([0., -1.5*100, -3.5*100]),
-            #dirt.matrices.rodrigues([-0.4, 0., 0.])  # tilt the view downwards
+            # dirt.matrices.rodrigues([-0.4, 0., 0.])  # tilt the view downwards
         )
         v_camera = tf.matmul(v_world, view_matrix)
 
@@ -53,7 +56,7 @@ class Tile_Renderer(Layer):
             vertices=v_clip,
             faces=f,
             vertex_colors=c,
-            background=tf.zeros([self.output_dim[-2], self.output_dim[-3], 3]),
+            background=tf.zeros([self.output_dim[0],self.output_dim[-2], self.output_dim[-3], 3]),
             width=self.output_dim[-3],
             height=self.output_dim[-2],
             channels=self.output_dim[-1]
@@ -63,7 +66,7 @@ class Tile_Renderer(Layer):
 
     @staticmethod
     def _geom_from_vec_repr(input_):
-        """ Transforms vector representation to vertices, vertex colors and faces.
+        """Transforms vector representation to vertices, vertex colors and faces.
 
         Args:
             input_: a batch of 3D tensors of 1D vector representations, 5D in total
@@ -84,26 +87,34 @@ class Tile_Renderer(Layer):
         will have negligibly small sizes:
         to - from ~ 0.
         """
+        input_ = tf.cast(input_, dtype=tf.float32)
 
         b = tf.shape(input_)[0]         # Batch size
         w = tf.shape(input_)[-4]
         h = tf.shape(input_)[-3]
         l = tf.shape(input_)[-2]
         # Number of axis aligned cuboid elements in a minecraft tile model
-        e = tf.math.floordiv(tf.shape(input_)[-1] , 8*3)
+        e = tf.math.floordiv(tf.shape(input_)[-1], 8*3)
 
         # Reshaping the vector representations of minecraft tiles
         # from (e*8*3,) to (e,8,1,3)
-        elements = tf.reshape(input_, [b, w, h, l, e, 8, 1, 3])
+                                       #[1, 1, 1, 1, 1, 6, 2, 3, 3]
+        elements = tf.reshape(input_,   [b, w, h, l, e, 8, 1, 1, 3])
 
         # Extracting the location of the axis aligned boxes' corners
-        from_ = elements[:, :, :, :, :, 0]
-        to = elements[:, :, :, :, :, 1]
+                        #[1,42,60,51, 2, 1, 1, 3]
+        from_ = elements[:, :, :, :, :, 0:1]
+        to = elements[:, :, :, :, :, 1:2]
 
         colors = elements[:, :, :, :, :, 2:]
 
         # Generating the geometry of a unit cube
-        v_cube = [[x, y, z] for z in [0., 1.] for y in [0., 1.] for x in [0., 1.]]
+        v_cube = [
+            [x, y, z]
+            for z in [0., 1.]
+            for y in [0., 1.]
+            for x in [0., 1.]
+        ]
         v_cube = [
             [[v_cube[0], v_cube[1], v_cube[3]],
                 [v_cube[3], v_cube[2], v_cube[0]]],  # back
@@ -126,9 +137,22 @@ class Tile_Renderer(Layer):
         # v's shape is now [b,w,h,l,e,6,2,3,3]
 
         # Generating the origins of each tile
-        x = tf.reshape(tf.range(0., tf.cast(w, dtype=tf.float32)), [w, 1, 1, 1])
-        y = tf.reshape(tf.range(0., tf.cast(h, dtype=tf.float32)), [1, h, 1, 1])
-        z = tf.reshape(tf.range(0., tf.cast(l, dtype=tf.float32)), [1, 1, l, 1])
+        x = tf.reshape(
+            tf.range(0., tf.cast(w, dtype=tf.float32)),
+            [w, 1, 1, 1]
+        )
+        x = tf.broadcast_to(x, [w, h, l, 1])
+        y = tf.reshape(
+            tf.range(0., tf.cast(h, dtype=tf.float32)),
+            [1, h, 1, 1]
+        )
+        y = tf.broadcast_to(y, [w, h, l, 1])
+        z = tf.reshape(
+            tf.range(0., tf.cast(l, dtype=tf.float32)),
+            [1, 1, l, 1]
+        )
+        z = tf.broadcast_to(z, [w, h, l, 1])
+
         o = tf.concat([x, y, z], axis=-1)
         o = tf.reshape(o, [1, w, h, l, 1, 1, 1, 1, 3])
         o = tf.broadcast_to(o, [b, w, h, l, e, 6, 2, 3, 3])
@@ -147,8 +171,8 @@ class Tile_Renderer(Layer):
         c = tf.reshape(c, [b, w*h*l*e*6*2*3, 3])
 
         # Generating face indices
-        f = tf.range(0, w*h*l*e*6*2*3, dtype=tf.int32)
-        f = tf.reshape(f, [1, w*h*l*e*6*2, 3])
+        f = tf.range(0, b*w*h*l*e*6*2*3, dtype=tf.int32)
+        f = tf.reshape(f, [b, w*h*l*e*6*2, 3])
         f = tf.broadcast_to(f, [b, w*h*l*e*6*2, 3])
 
         return v, c, f
@@ -163,5 +187,6 @@ class Tile_Renderer(Layer):
             [0., 0., -1./(far-near), -near/(far-near)],
             [0., 0., 0., 1.]
         ]
-        return tf.transpose(tf.convert_to_tensor(projection_matrix, dtype=tf.float32))
-
+        return tf.transpose(
+            tf.convert_to_tensor(projection_matrix, dtype=tf.float32)
+        )

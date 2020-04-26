@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Tuple
 
 import numpy as np
 from PIL import Image
@@ -13,13 +14,13 @@ from creAI.plugins.file_manager.formats.tilemaps.minecraft_tilemaps.geometry imp
 np.set_printoptions(threshold=sys.maxsize)
 
 
-def generate_training_data(tilemap: Minecraft_Tilemap) -> np.ndarray:
-    x_train = []
-    palette = set(tilemap.flat)
-    for tile in palette:
+def vectorize_tilemap(tilemap: Minecraft_Tilemap) -> Tuple[np.ndarray, dict]:
+    vec_reprs = []
+    unique_tiles = list(set(tilemap.flat))
+    for tile in unique_tiles:
         model = get_model_json(tile)
         if model is None:
-            x_train.append(np.zeros(2*3 + 6*3))
+            vec_reprs.append(np.zeros(2*3 + 6*3))
             continue
         boxes = []
         for element in model['elements']:
@@ -47,10 +48,17 @@ def generate_training_data(tilemap: Minecraft_Tilemap) -> np.ndarray:
             boxes.append(box_vector)
 
         tile_vector = np.concatenate(boxes)
-        x_train.append(tile_vector)
+        vec_reprs.append(tile_vector)
 
-    max_len = max([len(x) for x in x_train])
-    x_train = np.array(
-        [np.pad(x, (0, max_len - len(x)), 'constant') for x in x_train]
+    max_len = max([len(x) for x in vec_reprs])
+    vec_reprs = np.array(
+        [np.pad(x, (0, max_len - len(x)), 'constant') for x in vec_reprs]
     )
-    return x_train
+
+    palette = dict(zip(unique_tiles, vec_reprs))
+    tilemap_vectorized = []
+    for t in tilemap.ravel():
+        tilemap_vectorized += [palette[t]]
+    
+    tilemap_vectorized = np.array(tilemap_vectorized).reshape(list(tilemap.shape)+[max_len])
+    return tilemap_vectorized, palette

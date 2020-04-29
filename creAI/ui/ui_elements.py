@@ -396,6 +396,40 @@ class Input(UI_Element):
             }
         )
 
+        
+class Radio_Input(UI_Element):
+    _required = ['name']
+    _optional = ['value', 'label']
+    _additional = ['parent_id']
+
+    def construct_DOM_elements(self):
+        value = ''
+        if 'value' in self.property:
+            value = self.property['value']
+        if 'label' in self.property:
+            eel.add_DOM_element(
+                self.property['parent_id'],
+                'input',
+                {
+                    'id': self.id,
+                    'type': 'radio',
+                    'name': self.property['name'],
+                    'value': value,
+                }
+            )
+            label = creAI.globals.gen_id()
+            eel.add_DOM_element(
+                self.property['parent_id'],
+                'label',
+                {
+                    'for': self.id,
+                    'id': label,
+                    'class': 'radio_label',
+                }
+            )
+            eel.append_text(label, self.property['label'])
+            
+       
 
 class Number_Input(UI_Element):
     _required = ['name']

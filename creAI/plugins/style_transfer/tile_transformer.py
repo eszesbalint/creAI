@@ -6,8 +6,7 @@ from tensorflow.keras.layers import (Activation, BatchNormalization, Conv3D,
 from tensorflow.keras.models import Model
 import tensorflow.keras.backend as K
 
-from creAI.plugins.style_transfer.tile_encoder import Tile_VAE
-from creAI.plugins.style_transfer.tile_renderer import Tile_Renderer
+
 
 tf.keras.backend.set_image_data_format('channels_last')
 

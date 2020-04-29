@@ -4,9 +4,14 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
 
-
-import dirt
-import dirt.matrices
+try:
+    import dirt
+    import dirt.matrices
+except ModuleNotFoundError:
+    raise NotImplementedError(
+        "Differential rendering without GPU support is not implemented yet! "
+        "Make sure to install the necessary dependencies to use this feature!"
+        )
 
 
 class Tile_Renderer(Layer):

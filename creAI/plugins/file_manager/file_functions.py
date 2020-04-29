@@ -64,13 +64,15 @@ def read(file_name, raw_data):
 
 
 def add(id_: str, file_: dict):
-    global files
-    files[id_] = file_
-    creAI.ui.File_Tag(
+    tag = creAI.ui.File_Tag(
         text=file_['name'],
         script_1=creAI.ui.function_to_script(select, id_),
         script_2=creAI.ui.function_to_script(delete, id_),
-    ).create(parent_id='file_list')
+    )
+    tag.create(parent_id='file_list')
+    file_['tag'] = tag
+    global files
+    files[id_] = file_
     global selected
     selected = id_
     display(selected)
@@ -119,6 +121,7 @@ def select(id_):
 
 @eel.expose('FileManager_delete')
 def delete(id_):
+    hide(id_)
     global files
     files[id_]['tag'].destroy()
     del files[id_]

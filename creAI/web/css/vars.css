@@ -1,7 +1,7 @@
 :root {
 	--bg-color: #524f57;
 	--main-bg-color: #fbfbfb;
-	--active-bg-color: rgba(48, 46, 53, 0.8);
+	--active-bg-color: rgb(48, 46, 53);
 	--plugin-bg-color: var(--active-bg-color);
 	--icon-bg-color: var(--main-bg-color);
 	--active-icon-bg-color: var(--active-bg-color);

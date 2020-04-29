@@ -15,6 +15,7 @@ from creAI.plugins.style_transfer.tile_transformer import Tile_Transformer
 from creAI.plugins.style_transfer.tile_encoder import Tile_VAE, Tile_Decoder
 from creAI.plugins.style_transfer.tile_renderer import Tile_Renderer
 from creAI.plugins.style_transfer.losses import tilemap_style_loss
+from creAI.plugins.style_transfer.model_manager import get_full_path
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -29,7 +30,7 @@ if gpus:
     # Virtual devices must be set before GPUs have been initialized
     print(e)
 
-def train(tilemap: Minecraft_Tilemap):
+def train(tilemap: Minecraft_Tilemap, model_name: str):
     
     batch_size=1
     input_shape = (50, 40, 50, 1)
@@ -101,9 +102,11 @@ def train(tilemap: Minecraft_Tilemap):
     imgs_arr = render_test_model.predict(generator[0])
     img = tf.keras.preprocessing.image.array_to_img(imgs_arr[0])
     tf.keras.preprocessing.image.save_img('rendered.png', img)
-    return
+    
+    model.save(get_full_path(model_name))
 
 
 if __name__ == '__main__':
     tilemap = Schematic.load(sys.argv[1])
-    train(tilemap)
+    model_name = sys.argv[2]
+    train(tilemap, model_name)

@@ -20,7 +20,7 @@ class Tile_Renderer(Layer):
         """Builds the computational graph for differentiable rendering"""
 
         input_ = inputs
-
+        b = tf.shape(input_)[0]         # Batch size
         v, c, f = self._geom_from_vec_repr(input_)
 
         # Convert vertices to homogeneous coordinates
@@ -31,13 +31,15 @@ class Tile_Renderer(Layer):
 
         # Transforming vertices from object space to world space
         v_world = tf.matmul(
-            v, dirt.matrices.translation([-32., -32., -32.]))
+            v, dirt.matrices.translation([-25., -20., -25.]))
 
         # Transforming vertices from world space to camera space
         view_matrix = dirt.matrices.compose(
             # translate it away from the camera
-            dirt.matrices.translation([0., -1.5*100, -3.5*100]),
-            # dirt.matrices.rodrigues([-0.4, 0., 0.])  # tilt the view downwards
+            dirt.matrices.translation([0., 0., 0.]),
+            dirt.matrices.rodrigues([ -0.7853982, 0., 0.]),
+            dirt.matrices.rodrigues([ 0., 0.7853982, 0.]),
+            dirt.matrices.rodrigues([ 0., 0., 0.7853982]),
         )
         v_camera = tf.matmul(v_world, view_matrix)
 
@@ -56,10 +58,7 @@ class Tile_Renderer(Layer):
             vertices=v_clip,
             faces=f,
             vertex_colors=c,
-            background=tf.zeros([self.output_dim[0],self.output_dim[-2], self.output_dim[-3], 3]),
-            width=self.output_dim[-3],
-            height=self.output_dim[-2],
-            channels=self.output_dim[-1]
+            background=tf.zeros(shape=[b]+self.output_dim[-3:]),
         )
 
         return output
@@ -99,14 +98,14 @@ class Tile_Renderer(Layer):
         # Reshaping the vector representations of minecraft tiles
         # from (e*8*3,) to (e,8,1,3)
                                        #[1, 1, 1, 1, 1, 6, 2, 3, 3]
-        elements = tf.reshape(input_,   [b, w, h, l, e, 8, 1, 1, 3])
+        elements = tf.reshape(input_,   [b, w*h*l, e, 8, 1, 1, 3])
 
         # Extracting the location of the axis aligned boxes' corners
                         #[1,42,60,51, 2, 1, 1, 3]
-        from_ = elements[:, :, :, :, :, 0:1]
-        to = elements[:, :, :, :, :, 1:2]
+        from_ = elements[ :, :, :, 0:1]
+        to = elements[ :, :, :, 1:2]
 
-        colors = elements[:, :, :, :, :, 2:]
+        colors = elements[ :, :, :, 2:]
 
         # Generating the geometry of a unit cube
         v_cube = [
@@ -132,7 +131,7 @@ class Tile_Renderer(Layer):
 
         # Transforming the unit cube to match the dimensions defined
         # in from_ and to.
-        v_cube = tf.reshape(v_cube, [1, 1, 1, 1, 1, 6, 2, 3, 3])
+        v_cube = tf.reshape(v_cube, [1, 1, 1, 6, 2, 3, 3])
         v = v_cube*(to-from_) + from_
         # v's shape is now [b,w,h,l,e,6,2,3,3]
 
@@ -154,15 +153,15 @@ class Tile_Renderer(Layer):
         z = tf.broadcast_to(z, [w, h, l, 1])
 
         o = tf.concat([x, y, z], axis=-1)
-        o = tf.reshape(o, [1, w, h, l, 1, 1, 1, 1, 3])
-        o = tf.broadcast_to(o, [b, w, h, l, e, 6, 2, 3, 3])
+        o = tf.reshape(o, [1, w*h*l, 1, 1, 1, 1, 3])
+        o = tf.broadcast_to(o, [b, w*h*l, e, 6, 2, 3, 3])
 
         # Translating vertices by origins
         v = v + o
 
         # Generating vertex colors
-        c = tf.reshape(colors, [b, w, h, l, e, 6, 1, 1, 3])
-        c = tf.broadcast_to(c, [b, w, h, l, e, 6, 2, 3, 3])
+        c = tf.reshape(colors, [b, w*h*l, e, 6, 1, 1, 3])
+        c = tf.broadcast_to(c, [b, w*h*l, e, 6, 2, 3, 3])
 
         # Flattening vertex tensor
         v = tf.reshape(v, [b, w*h*l*e*6*2*3, 3])

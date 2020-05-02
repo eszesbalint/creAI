@@ -2,7 +2,7 @@
 
 import creAI.plugins.panel_generator.generator
 import creAI.ui
-import creAI.plugins.file_manager.file_functions as FM
+import creAI.plugins.file_manager.file_functions as FF
 
 
 import creAI.globals
@@ -18,13 +18,11 @@ if not creAI.globals.cli_mode:
             kwargs['height']), int(kwargs['length'])
         tilemap = creAI.plugins.panel_generator.generator.generate(w, h, l)
         id_ = str(id(tilemap))
-        FM.add(
+        FF.add(
             id_,
-            {
-                'name': 'Generated',
-                'format': 'schem',
-                'content': tilemap
-            }
+            name='generated.schem',
+            format='schem',
+            content=tilemap
         )
 
     plugin = creAI.ui.Plugin(
@@ -43,7 +41,7 @@ if not creAI.globals.cli_mode:
                                           label='height', min_='1', value='30', max_='256'),
                     creAI.ui.Number_Input(name='length',
                                           label='length', min_='1', value='30', max_='256'),
-                    creAI.ui.Button(type_='submit', text='Generate'),
+                    creAI.ui.Button(text='Generate'),
                 ]
             ),
         ]

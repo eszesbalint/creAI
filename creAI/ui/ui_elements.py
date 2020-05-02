@@ -5,7 +5,15 @@ from creAI.ui.helper_functions import toggle_plugin_visibility, function_to_scri
 
 
 class UI_Element(object):
+    """ Base class for UI elements."""
     def __init__(self, **kwargs):
+        """ Initalizing UI element.
+
+        Args:
+            **kwargs: keyword arguments describing the element's properties,
+                      each subclass implements its own set of required and
+                      optional properties.
+        """
         self.check_required_keyword_arguments(**kwargs)
         self.property = kwargs
         self.id = creAI.globals.gen_id()
@@ -20,6 +28,14 @@ class UI_Element(object):
         self.construct_DOM_elements()
 
     def check_required_keyword_arguments(self, **kwargs):
+        """ Checking wether or not the given keyword arguments are valid.
+
+        The arguments should either be in _required or _optional, but all
+        keywords in _required should appear once and once only.
+
+        Args:
+            **kwargs: keyword arguments to check
+        """
         for key in self._required:
             if key not in kwargs:
                 raise AttributeError(
@@ -38,6 +54,13 @@ class UI_Element(object):
                 )
 
     def check_additional_keyword_arguments(self, **kwargs):
+        """ Checking wether or not the given keyword arguments are valid.
+
+        The arguments should be in _additional.
+
+        Args:
+            **kwargs: keyword arguments to check
+        """
         for key in self._additional:
             if key not in kwargs:
                 raise AttributeError(
@@ -49,6 +72,7 @@ class UI_Element(object):
                 )
 
     def destroy(self):
+        """ Removing the DOM element associated with this UI element"""
         eel.remove_DOM_element(self.id)
 
     def __eq__(self, other):
@@ -56,6 +80,15 @@ class UI_Element(object):
 
 
 class Dialog_Window(UI_Element):
+    """ Creates a dialog window.
+    
+    Kwargs:
+        Required:
+            title (str): title of the window, this appears on the top of the 
+                window
+            content (List[UI_Element]): a list of UI elements to add to the
+                window's body
+    """
     _required = ['title', 'content']
 
     def construct_DOM_elements(self):
@@ -115,6 +148,13 @@ class Dialog_Window(UI_Element):
 
 
 class Progress_Bar(UI_Element):
+    """ Creates a placeholder progressbar. It is more like a loading animation.
+    
+    Kwargs:
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+
+    """
     _additional = ['parent_id']
 
     def construct_DOM_elements(self):
@@ -127,6 +167,15 @@ class Progress_Bar(UI_Element):
 
 
 class Paragraph(UI_Element):
+    """ Creates a simple paragraph.
+    
+    Kwargs:
+        Required:
+            text (str): the body of text to display
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+
+    """
     _required = ['text']
     _additional = ['parent_id']
 
@@ -138,6 +187,15 @@ class Paragraph(UI_Element):
 
 
 class Title(UI_Element):
+    """ Creates a simple title.
+    
+    Kwargs:
+        Required:
+            text (str): the body of text to display
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+
+    """
     _required = ['text']
     _additional = ['parent_id']
 
@@ -149,7 +207,18 @@ class Title(UI_Element):
 
 
 class Button(UI_Element):
-    _optional = ['script', 'text', 'icon_class', 'type_']
+    """ Creates a customizable button.
+    
+    Kwargs:
+        Optional:
+            script (str): JavaScript script to run when button is clicked
+            text (str): button label
+            icon_class (str): CSS class of the icon to display
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+
+    """
+    _optional = ['script', 'text', 'icon_class']
     _additional = ['parent_id']
 
     def construct_DOM_elements(self):
@@ -176,6 +245,18 @@ class Button(UI_Element):
 
 
 class Menu_Element(UI_Element):
+    """ Creates a menu button.
+    
+    Kwargs:
+        Optional:
+            script (str): JavaScript script to run when button is clicked
+            text (str): button label
+            icon_class (str): CSS class of the icon to display
+            tag (str): HTML tag type
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+
+    """
     _optional = ['script', 'text', 'icon_class', 'tag']
     _additional = ['parent_id']
 
@@ -225,6 +306,18 @@ class Menu_Element(UI_Element):
 
 
 class Plugin(UI_Element):
+    """ Creates the UI of a plugin, including the menu button and proprerties tab.
+    
+    Kwargs:
+        Required:
+            icon_class (str): CSS class of the icon to display
+            name (str): name of the plugin
+            title (str): the name to display in the menu
+            description (str): plugin description
+            content (List[UI_Element]): list of UI elements to expose the
+                plugin's functions
+
+    """
     _required = ['icon_class', 'name', 'title', 'description', 'content']
 
     def construct_DOM_elements(self):
@@ -270,6 +363,19 @@ class Plugin(UI_Element):
 
 
 class File_Tag(UI_Element):
+    """ Creates a file tag.
+    
+    Kwargs:
+        Required:
+            text (str): the body of text to display
+        Optional:
+            script_1 (str): JavaScript script to run when the tag is clicked
+            script_2 (str): JavaScript script to run when the close button is 
+                clicked
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+
+    """
     _required = ['text']
     _optional = ['script_1', 'script_2', 'text']
     _additional = ['parent_id']
@@ -319,6 +425,16 @@ class File_Tag(UI_Element):
 
 
 class File_Open_Dialog(UI_Element):
+    """ Creates a file opening dialog.
+    
+    Kwargs:
+        Required:
+            script (str): JavaScript script to run when the file has been 
+                selected
+        Optional:
+            file_extention (str): show files only with this file extention
+
+    """
     _required = ['script']
     _optional = ['file_extention']
 
@@ -329,7 +445,38 @@ class File_Open_Dialog(UI_Element):
         pass
 
 
+class File_Save_Dialog(UI_Element):
+    """ Creates a file saving dialog.
+    
+    Kwargs:
+        Required:
+            file_name (str): file name with extention
+            bytes_ ()
+
+    """
+    _required = ['file_name', 'bytes_']
+
+    def construct_DOM_elements(self):
+        list_of_bytes = list(self.property['bytes_'])
+        eel.file_save_dialog(self.property['file_name'], list_of_bytes)
+
+    def destroy(self):
+        pass
+
+
 class Form(UI_Element):
+    """ Creates a form element.
+    
+    Kwargs:
+        Required:
+            content (List[UI_Element]): list of UI elements
+            script (str): JavaScript script to run when the form has been
+                submitted
+        Optional:
+            file_extention (str): show files only with this file extention
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+    """
     _required = ['content', 'script']
     _additional = ['parent_id']
 
@@ -358,6 +505,20 @@ class Form(UI_Element):
 
 
 class Input(UI_Element):
+    """ Creates a general input element.
+    
+    Kwargs:
+        Required:
+            type_ (str): input type 
+            name (str): name of the value it holds
+        Optional:
+            value (str): default input value
+            label (str): label of the input element
+            min_ (int): min value for numeric input types
+            max_ (int): max value for numeric input types
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+    """
     _required = ['type_', 'name']
     _optional = ['value', 'label', 'min_', 'max_']
     _additional = ['parent_id']
@@ -398,6 +559,17 @@ class Input(UI_Element):
 
         
 class Radio_Input(UI_Element):
+    """ Creates a radio button element.
+    
+    Kwargs:
+        Required:
+            name (str): name of the value it holds
+        Optional:
+            value (str): input value
+            label (str): label of the input element
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+    """
     _required = ['name']
     _optional = ['value', 'label']
     _additional = ['parent_id']
@@ -432,6 +604,19 @@ class Radio_Input(UI_Element):
        
 
 class Number_Input(UI_Element):
+    """ Creates a numeric input element with incement and decrement buttons.
+    
+    Kwargs:
+        Required:
+            name (str): name of the value it holds
+        Optional:
+            value (str): default input value
+            label (str): label of the input element
+            min_ (int): min value for numeric input types
+            max_ (int): max value for numeric input types
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+    """
     _required = ['name']
     _optional = ['value', 'label', 'min_', 'max_']
     _additional = ['parent_id']
@@ -503,6 +688,14 @@ class Number_Input(UI_Element):
 
 
 class Code_Block(UI_Element):
+    """ Creates an element to display code.
+    
+    Kwargs:
+        Required:
+            code (str): the code to display
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+    """
     _required = ['code']
     _additional = ['parent_id']
 
@@ -521,6 +714,14 @@ class Code_Block(UI_Element):
 
 
 class Button_List(UI_Element):
+    """ Creates a strip to display button elements.
+    
+    Kwargs:
+        Required:
+            content (List[Button_Element]): list of button elements
+        Additional:
+            parent_id (str): ID of the parent DOM element 
+    """
     _required = ['content']
     _additional = ['parent_id']
 

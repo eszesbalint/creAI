@@ -18,22 +18,7 @@ function onWindowResize() {
 }
 
 
-eel.expose(addBoxes);
-function addBoxes(positions) {
-	scene.remove( tilemap_mesh );
-	var tilemap_geometry = new THREE.Geometry();
-	for (var i = 0; i < positions.length; i++) {
-		var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-		var material = new THREE.MeshStandardMaterial( {color: 0x00ff00} );
-		var cube = new THREE.Mesh( geometry, material );
-		cube.position.set(positions[i][0]+0.5, positions[i][1]+0.5, positions[i][2]+0.5);
-		cube.updateMatrix();
-    	tilemap_geometry.merge(cube.geometry, cube.matrix);
-    }
-    var material = new THREE.MeshNormalMaterial();
-    tilemap_mesh = new THREE.Mesh( tilemap_geometry, material );
-	scene.add( tilemap_mesh );
-}
+
 
 eel.expose(add_tilemap);
 function add_tilemap(id, vertices, normals, colors) {
@@ -58,7 +43,6 @@ eel.expose(remove_tilemap);
 function remove_tilemap(id) {
 	if(id in tilemap_meshes) {
 		delete tilemap_meshes[id];
-		scene.remove( scene.getObjectByName(id + '_helper') );
 		scene.remove( scene.getObjectByName(id) );
 	}
 }
@@ -67,9 +51,6 @@ function remove_tilemap(id) {
 eel.expose(show_tilemap);
 function show_tilemap(id) {
 	if(id in tilemap_meshes) {
-		var box = new THREE.BoxHelper( tilemap_meshes[id], 0xfcba03 );
-		box.name = id + '_helper';
-		scene.add( box );
 		scene.add(tilemap_meshes[id]);
 	}
 }
@@ -77,7 +58,6 @@ function show_tilemap(id) {
 eel.expose(hide_tilemap);
 function hide_tilemap(id) {
 	if(id in tilemap_meshes) {
-		scene.remove( scene.getObjectByName(id + '_helper') );
         scene.remove( scene.getObjectByName(id) );
 	}
 }

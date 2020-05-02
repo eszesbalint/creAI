@@ -155,7 +155,9 @@ input[type=radio] + .radio_label:before {
 }
 
 input[type=radio]:checked + .radio_label:before {
-	background-color: var(--accent-color);
+	border: calc(5px * var(--scaling-factor)) solid var(--accent-color);
+	width: calc((20px - 10px) * var(--scaling-factor));
+	height: calc((20px - 10px) * var(--scaling-factor));
 }
 
 label {

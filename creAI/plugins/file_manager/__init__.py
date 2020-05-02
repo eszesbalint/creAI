@@ -1,5 +1,5 @@
 import creAI.globals
-from creAI.plugins.file_manager.file_functions import delete, load, read, select
+from creAI.plugins.file_manager.file_functions import delete, load, read, select, save
 
 if not creAI.globals.cli_mode:
     import creAI.ui
@@ -26,7 +26,7 @@ if not creAI.globals.cli_mode:
     btn_2 = creAI.ui.Menu_Element(
         text='Save',
         icon_class='export icon',
-        script=creAI.ui.function_to_script(load)
+        script=creAI.ui.function_to_script(save)
     )
     btn_1.create(parent_id='main_menu')
     btn_2.create(parent_id='main_menu')

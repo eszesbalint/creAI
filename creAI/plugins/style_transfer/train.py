@@ -13,8 +13,8 @@ from creAI.plugins.style_transfer.data_generator import Random_Data_Generator
 from creAI.plugins.style_transfer.data_preprocessing import vectorize_tilemap
 from creAI.plugins.style_transfer.tile_transformer import Tile_Transformer
 from creAI.plugins.style_transfer.tile_encoder import Tile_VAE, Tile_Decoder
-from creAI.plugins.style_transfer.tile_renderer import Tile_Renderer
-from creAI.plugins.style_transfer.losses import tilemap_style_loss
+#from creAI.plugins.style_transfer.tile_renderer import Tile_Renderer
+#from creAI.plugins.style_transfer.losses import tilemap_style_loss
 from creAI.plugins.style_transfer.model_manager import get_full_path
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -37,7 +37,7 @@ def train(tilemap: Minecraft_Tilemap, model_name: str):
 
     # Generating training data
     style_reference, palette = vectorize_tilemap(tilemap)
-    vae_data = np.array(list(palette.values()))[:32]
+    vae_data = np.array(list(palette.values()))
     generator = Random_Data_Generator(batch_size=batch_size, min_shape=input_shape[:-1], max_shape=input_shape[:-1])
 
     latent_dim = 8
@@ -51,8 +51,12 @@ def train(tilemap: Minecraft_Tilemap, model_name: str):
     vae_optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
     vae.compile(optimizer=vae_optimizer, loss=vae_loss)
     vae.fit(vae_data, vae_data, 
-                        batch_size=16, epochs=100)
-
+                        batch_size=16, epochs=1000)
+    
+    encoder_input = Input((vae_data.shape[-1],))
+    encoded = vae.encoder(encoder_input)
+    encoder = Model(encoder_input, encoded)
+    print(encoder.predict(vae_data)[0])
     # Initializing model
     input_ = Input(input_shape)
     transformer = Tile_Transformer(channels=latent_dim)(input_)
@@ -67,7 +71,8 @@ def train(tilemap: Minecraft_Tilemap, model_name: str):
             filters=out_dim, 
             kernel_size=1, 
             strides=1,
-            weights=[W, b]
+            weights=[W, b],
+            activation=layer.activation
             )(decode_layer)
 
     model = Model(input_, decode_layer)
@@ -103,7 +108,7 @@ def train(tilemap: Minecraft_Tilemap, model_name: str):
     img = tf.keras.preprocessing.image.array_to_img(imgs_arr[0])
     tf.keras.preprocessing.image.save_img('rendered.png', img)
     
-    model.save(get_full_path(model_name))
+    #vae.save(get_full_path(model_name), save_format='tf')
 
 
 if __name__ == '__main__':

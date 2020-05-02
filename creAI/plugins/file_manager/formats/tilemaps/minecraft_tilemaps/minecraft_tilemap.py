@@ -106,7 +106,7 @@ class Schematic(object):
         return nbt.load(file_name, raw_data)
 
     @classmethod
-    def save(cls, tile_map: Minecraft_Tilemap, path: str):
+    def save(cls, tile_map: Minecraft_Tilemap, path: str=None):
         # Swapping axes
         swapped_tile_map = np.swapaxes(tile_map, 0, 1)
         swapped_tile_map = np.swapaxes(swapped_tile_map, 1, 2)
@@ -167,4 +167,4 @@ class Schematic(object):
             version_tag,
             data_version_tag,
         ]
-        nbt.save(root_tag, path)
+        return nbt.save(root_tag, path)

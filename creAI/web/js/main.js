@@ -70,7 +70,7 @@ function file_open_dialog(callback_script, file_extention) {
 
 
    			reader.onload = readerEvent => {
-   			   var content = readerEvent.target.result; // this is the content!
+   			   var content = readerEvent.target.result;
    			   console.log( content );
    			   window['eel'][callback_script.split('.')[1].split('(')[0]](file.name, new Uint8Array(content));
    			}
@@ -78,6 +78,24 @@ function file_open_dialog(callback_script, file_extention) {
    		}
 	file_selector.click();
 	return false;
+}
+
+eel.expose(file_save_dialog);
+function file_save_dialog(file_name, buffer) {
+	var base64 = btoa(
+		new Uint8Array(buffer)
+		  .reduce((data, byte) => data + String.fromCharCode(byte), '')
+	  );
+	var element = document.createElement('a');
+  	element.setAttribute('href', 'data:application/octet-stream;charset=utf-16le;base64,' + base64);
+  	element.setAttribute('download', file_name);
+
+  	element.style.display = 'none';
+  	document.body.appendChild(element);
+
+  	element.click();
+
+  	document.body.removeChild(element);
 }
 
 

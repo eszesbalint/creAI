@@ -62,13 +62,10 @@ class Tile_VAE(Model):
 
     def call(self, inputs):
         mean, log_var, code = self.encoder(inputs)
-        self.add_loss(self._kl_divergence(mean, log_var))
+        kl_divergence = 0.5 * tf.reduce_mean(
+            tf.exp(log_var) + tf.square(mean) - 1. - log_var
+        )
+        self.add_loss(kl_divergence)
         return self.decoder(code)
 
-    @staticmethod
-    def _kl_divergence(mean, log_var):
-        return 0.5 * tf.reduce_mean(
-            tf.exp(log_var) + tf.square(mean) - 1. - log_var,
-            axis=-1,
-        )
 

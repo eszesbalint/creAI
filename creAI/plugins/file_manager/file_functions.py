@@ -1,16 +1,16 @@
 import eel
 
 import creAI.ui
-from creAI.plugins.file_manager.formats.tilemaps.minecraft_tilemaps import Schematic
+from creAI.plugins.file_manager.formats.tilemaps.minecraft_tilemaps import Schematic, Minecraft_Tilemap
 from creAI.plugins.file_manager.formats.tilemaps.minecraft_tilemaps.geometry import tilemap_to_geometry
 
-
+@creAI.ui.display_error_message_on_error
 def load_schematic(raw_data):
     raw_data = bytearray(raw_data.values())
     tilemap = Schematic.load(None, raw_data)
     return tilemap
 
-
+@creAI.ui.display_error_message_on_error
 def display_schematic(id_: str, file_: dict):
     if 'geometry' in file_:
         geometry = file_['geometry']
@@ -19,15 +19,14 @@ def display_schematic(id_: str, file_: dict):
         file_['geometry'] = geometry
     creAI.ui.display_geometry(id_, geometry)
 
-
+@creAI.ui.display_error_message_on_error
 def hide_schematic(id_: str, file_: dict):
     creAI.ui.hide_geometry(id_)
 
+@creAI.ui.display_error_message_on_error
+def save_schematic(tilemap: Minecraft_Tilemap) -> bytearray:
+    return bytearray(Schematic.save(tilemap))
 
-def save_schematic():
-    #tilemap = creAI.Globals.tilemaps[creAI.Globals.selected_tilemap_id]['tilemap']
-    #Schematic.save(tilemap, "saving_test.schem")
-    pass
 
 
 files = {}
@@ -53,17 +52,16 @@ def read(file_name, raw_data):
         id_ = str(id(content))
         add(
             id_,
-            {
-                'name': file_name,
-                'format': extention,
-                'content': content,
-            }
+            name=file_name,
+            format=extention,
+            content=content,
         )
     else:
         raise ValueError('{} is not a supported format!'.format(extention))
 
-
-def add(id_: str, file_: dict):
+@creAI.ui.display_error_message_on_error
+def add(id_: str, **kwargs):
+    file_ = kwargs
     tag = creAI.ui.File_Tag(
         text=file_['name'],
         script_1=creAI.ui.function_to_script(select, id_),
@@ -84,7 +82,16 @@ def load():
         script=creAI.ui.function_to_script(read))
     dialog.create()
 
+@eel.expose('FileManager_save')
+@creAI.ui.display_error_message_on_error
+def save():
+    file_ = files[selected]
+    buffer = formats[file_['format']]['save'](file_['content'])
+    dialog = creAI.ui.File_Save_Dialog(file_name = file_['name'], bytes_ = buffer)
+    dialog.create()
 
+@creAI.ui.display_loading_animation('Displaying file')
+@creAI.ui.display_error_message_on_error
 def display(id_):
     file_ = files[id_]
     function_name = 'display'
@@ -97,7 +104,7 @@ def display(id_):
             )
         )
 
-
+@creAI.ui.display_error_message_on_error
 def hide(id_):
     file_ = files[id_]
     function_name = 'hide'
@@ -112,14 +119,17 @@ def hide(id_):
 
 
 @eel.expose('FileManager_select')
+@creAI.ui.display_error_message_on_error
 def select(id_):
     global selected
-    hide(selected)
-    selected = id_
-    display(selected)
+    if id_ != selected:
+        hide(selected)
+        selected = id_
+        display(selected)
 
 
 @eel.expose('FileManager_delete')
+@creAI.ui.display_error_message_on_error
 def delete(id_):
     hide(id_)
     global files

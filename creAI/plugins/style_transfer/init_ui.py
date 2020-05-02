@@ -53,7 +53,7 @@ plugin = creAI.ui.Plugin(
                                label='VAE Batch size', min_='1', value='32', max_='256'),
                 creAI.ui.Number_Input(name='vae_latent_dim',
                                label='VAE latent dim', min_='1', value='8'),
-                creAI.ui.Button(type_ = 'submit', text='Train'),
+                creAI.ui.Button(text='Train'),
             ]
         ),
         creAI.ui.Title(text='Generation'),
@@ -70,7 +70,7 @@ plugin = creAI.ui.Plugin(
                 creAI.ui.Number_Input(name='test', label='Width'),
                 creAI.ui.Number_Input(name='test', label='Height'),
                 creAI.ui.Number_Input(name='test', label='Length'),
-                creAI.ui.Button(type_='submit', text='Generate'),
+                creAI.ui.Button(text='Generate'),
             ]
         ),
     ]

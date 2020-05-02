@@ -1,3 +1,9 @@
+""" Implementation of the Named Binary Tag (NBT) file format.
+
+.. _Original specification described here:
+    http://www.minecraft.net/docs/NBT.txt
+"""
+
 from __future__ import print_function
 
 import gzip
@@ -10,7 +16,12 @@ import numpy as np
 
 
 class TAG(object):
-    #__slots__ = ('_name','_payload')
+    """ Base class for named binary tags.
+
+    Args:
+        name (str): name of the tag
+        payload: data associated with the tag
+    """
 
     def __init__(self, name="", payload=0):
         self.name = name
@@ -40,6 +51,19 @@ class TAG(object):
 
     @classmethod
     def load_payload(cls, raw_data, data_offset):
+        """ Loads tag's payload from raw binary data.
+
+        Sets the offset to the end of the payload.
+
+        Args:
+            raw_data (np.ndarray): byte array
+            data_offset (List[int]): offset in the raw data expressed in number of
+                bytes, it is a list because it has to be a mutable object in
+                order to pass it by reference
+
+        Returns:
+            TAG: tag with the payload
+        """
         data = raw_data[data_offset[0]:]
         payload = None
         (payload,) = cls.payload_format.unpack_from(data)
@@ -77,74 +101,84 @@ TAG_LONG_ARRAY = 12
 
 
 class TAG_Byte(TAG):
+    """ A single signed byte (8 bits). 
+
+    Args:
+        name (str): name of the tag
+        payload (int): data associated with the tag
+    """
     tag_type = TAG_BYTE
     payload_type = int
     payload_format = struct.Struct(">B")
 
 
 class TAG_Short(TAG):
+    """ A signed short (16 bits, big endian). 
+
+    Args:
+        name (str): name of the tag
+        payload (int): data associated with the tag
+    """
     tag_type = TAG_SHORT
     payload_type = int
     payload_format = struct.Struct(">h")
 
 
 class TAG_Int(TAG):
+    """ A signed short (32 bits, big endian). 
+
+    Args:
+        name (str): name of the tag
+        payload (int): data associated with the tag
+    """
     tag_type = TAG_INT
     payload_type = int
     payload_format = struct.Struct(">i")
 
 
 class TAG_Long(TAG):
+    """ A signed long (64 bits, big endian). 
+
+    Args:
+        name (str): name of the tag
+        payload (int): data associated with the tag
+    """
     tag_type = TAG_LONG
     payload_type = int
     payload_format = struct.Struct(">q")
 
 
 class TAG_Float(TAG):
+    """ A floating point value (32 bits, big endian, IEEE 754-2008, binary32). 
+
+    Args:
+        name (str): name of the tag
+        payload (float): data associated with the tag
+    """
     tag_type = TAG_FLOAT
     payload_type = float
     payload_format = struct.Struct(">f")
 
 
 class TAG_Double(TAG):
+    """ A floating point value (64 bits, big endian, IEEE 754-2008, binary64). 
+
+    Args:
+        name (str): name of the tag
+        payload (float): data associated with the tag
+    """
     tag_type = TAG_DOUBLE
     payload_type = float
     payload_format = struct.Struct(">d")
 
-# class TAG_Array(TAG):
-#
-#    def __init__(self, payload=None, name=""):
-#        if payload is None:
-#            self.payload = []
-#        else:
-#            self.payload = payload
-#        self.name = name
-#
-#    @classmethod
-#    def load_payload(cls, raw_data, data_offset):
-#        self = cls()
-#        size = TAG_Int.load_payload(raw_data, data_offset).payload
-#        for i in range(size):
-#            element =  tag_type_IDs_to_classes[self.element_type].load_payload(raw_data, data_offset)
-#            self._payload.append(element)
-#        return self
-#
-#    def payload_type(self, payload):
-#        for item in payload:
-#            if item is not isinstance(item, tag_type_IDs_to_classes[self.element_type]):
-#                raise TypeError("TAG_Byte_Array's elements are not integers!")
-#        return list(payload)
-#
-#    def __getitem__(self, index):
-#        return self.payload[index]
-
-# class TAG_Byte_Array(TAG_Array):
-#    tag_type = TAG_BYTE_ARRAY
-#    element_type = TAG_BYTE
-
 
 class TAG_Array(TAG):
+    """ Base class for array tags. 
 
+    Args:
+        name (str): name of the tag
+        payload (np.ndarray): data associated with the tag
+    """
     def __init__(self, payload=None, name=""):
         if payload is None:
             payload = np.zeros(0, self.dtype)
@@ -156,8 +190,23 @@ class TAG_Array(TAG):
 
     @classmethod
     def load_payload(cls, raw_data, data_offset):
+        """ Loads array tag's payload from raw binary data.
+
+        Sets the offset to the end of the payload.
+
+        Args:
+            raw_data (np.ndarray): byte array
+            data_offset (List[int]): offset in the raw data expressed in number of
+                bytes, it is a list because it has to be a mutable object in
+                order to pass it by reference
+
+        Returns:
+            TAG: tag with the payload
+        """
         data = raw_data[data_offset[0]:]
         (string_len,) = TAG_Int.payload_format.unpack_from(data)
+        # Offset it by 4 bytes, because first it reads the length of the
+        # array (4 bytes), then reads length number of array elements
         payload = np.fromstring(
             data[4:string_len * cls.dtype.itemsize + 4], cls.dtype)
         self = cls(payload)
@@ -169,52 +218,65 @@ class TAG_Array(TAG):
         buffer_.write(struct.pack(">I%ds" % (len(payload_str),),
                                   self.payload.size, payload_str))
 
-# class TAG_Byte_Array(TAG):
-#    tag_type = TAG_BYTE_ARRAY
-#    element_type = TAG_BYTE
-#
-#    @classmethod
-#    def load_payload(cls, raw_data, data_offset):
-#        self = cls()
-#        size = TAG_Int.load_payload(raw_data, data_offset).payload
-#        payload = raw_data[data_offset : data_offset + tag_type_IDs_to_classes[self.element_type].payload_format.size * size]
-#        data_offset += tag_type_IDs_to_classes[self.element_type].payload_format.size * size
-#        self = cls(payload=payload)
-#        return self
-#
-#    def payload_type(self, payload):
-#        #for item in payload:
-#        #    if item is not isinstance(item, tag_type_IDs_to_classes[self.element_type]):
-#        #        raise TypeError("TAG_Byte_Array's elements are not integers!")
-#        return payload
-#
-#    def __getitem__(self, index):
-#        return tag_type_IDs_to_classes[self.element_type].load_payload(
-#            self.payload[index * tag_type_IDs_to_classes[self.element_type].payload_format.size: (index + 1) * tag_type_IDs_to_classes[self.element_type].payload_format.size],
-#            [0]
-#            )
 
 
 class TAG_Byte_Array(TAG_Array):
+    """ An array of bytes of unspecified format. 
+
+    Args:
+        name (str): name of the tag
+        payload (np.ndarray): data associated with the tag
+    """
     tag_type = TAG_BYTE_ARRAY
     dtype = np.dtype('uint8')
 
 
 class TAG_Int_Array(TAG_Array):
+    """ An array of TAG_Int's payloads. 
+
+    Args:
+        name (str): name of the tag
+        payload (np.ndarray): data associated with the tag
+    """
     tag_type = TAG_INT_ARRAY
     dtype = np.dtype('>u4')
 
 
 class TAG_Long_Array(TAG_Array):
+    """ An array of TAG_Long's payloads. 
+
+    Args:
+        name (str): name of the tag
+        payload (np.ndarray): data associated with the tag
+    """
     tag_type = TAG_LONG_ARRAY
     dtype = np.dtype('>q')
 
 
 class TAG_String(TAG):
+    """ An array of bytes defining a string in UTF-8 format.
+
+    Args:
+        name (str): name of the tag
+        payload (str): data associated with the tag
+    """
     tag_type = TAG_STRING
 
     @classmethod
     def load_payload(cls, raw_data, data_offset):
+        """ Loads tag's payload from raw binary data.
+
+        Sets the offset to the end of the payload.
+
+        Args:
+            raw_data (np.ndarray): byte array
+            data_offset (List[int]): offset in the raw data expressed in number of
+                bytes, it is a list because it has to be a mutable object in
+                order to pass it by reference
+
+        Returns:
+            TAG: tag with the payload
+        """
         payload = load_string(raw_data, data_offset)
         self = cls(payload=payload)
         return self
@@ -232,6 +294,19 @@ class TAG_String(TAG):
 
 
 def load_string(raw_data, data_offset):
+    """ Loads string from raw binary data.
+
+    Sets the offset to the end of the payload.
+
+    Args:
+        raw_data (np.ndarray): byte array
+        data_offset (List[int]): offset in the raw data expressed in number of
+            bytes, it is a list because it has to be a mutable object in
+            order to pass it by reference
+
+    Returns:
+        str: decoded string
+    """
     data = raw_data[data_offset[0]:]
     string_length_format = struct.Struct(">H")
     (string_length,) = string_length_format.unpack_from(data)
@@ -240,6 +315,14 @@ def load_string(raw_data, data_offset):
 
 
 class TAG_Compound(TAG):
+    """ A sequential list of Named Tags. 
+    
+    This array keeps going until a TAG_End is found.
+
+    Args:
+        name (str): name of the tag
+        payload (List[TAG]): data associated with the tag
+    """
     tag_type = TAG_COMPOUND
 
     def __init__(self, payload=None, name=""):
@@ -382,7 +465,7 @@ def load(file_name=None, raw_data=None):
         return None
 
 
-def save(root_tag, file_name):
+def save(root_tag, file_name=None):
     if root_tag.name is None:
         root_tag.name = ""
 
@@ -397,9 +480,11 @@ def save(root_tag, file_name):
     gz.write(data)
     gz.close()
     data = gzio.getvalue()
-
+    if file_name is None:
+        return data
     f = open(file_name, "wb")
     f.write(data)
+
 
 
 def main():

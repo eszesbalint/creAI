@@ -1,0 +1,246 @@
+
+
+.blob-container {
+    margin: 30px;
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    vertical-align: bottom;
+    pointer-events: all;
+}
+
+.hover-container {
+    position: relative;
+    width: 50px;
+    height: 50px;
+}
+
+.blob-container:hover .hover-container {
+    animation: hover 4s ease-in-out infinite both alternate;
+}
+
+.scale-container {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    transform: scale(0.33);
+    transition: all 0.1s ease-in-out;
+}
+
+.blob-container:hover .scale-container {
+    transform: scale(1);
+}
+
+.blob-container:active .scale-container {
+    transform: scale(0.75);
+}
+
+.spin-container {
+    position: relative;
+    top: -100%;
+    left: -100%;
+    width: 150px;
+    height: 150px;
+}
+
+.blob-container:hover .spin-container {
+    position: relative;
+    top: -100%;
+    left: -100%;
+    animation: spin 10s linear infinite;
+}
+
+.blob {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    color: white;
+}
+
+.blob-container.menu-function .blob {
+    background-color: var(--accent);
+}
+
+.blob-container.menu-function label{
+    color: var(--accent);
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+0) .blob{
+    background-color: var(--palette1);
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+1) .blob{
+    background-color: var(--palette2);
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+2) .blob{
+    background-color: var(--palette3);
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+3) .blob{
+    background-color: var(--palette4);
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+4) .blob{
+    background-color: var(--palette5);
+}
+
+/*.blob:after {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    border-radius: 50%;
+    z-index: 1;
+    box-shadow: inset 15px 15px 30px 10px rgba(255, 255, 255, 0.479), 
+        inset -15px -15px 60px rgba(0, 0, 0, 0.87);
+  }
+
+.blob-container:hover .blob:after {
+    animation: spin 10s linear infinite reverse;
+}*/
+
+.blob-container:hover .blob {
+    animation: morph 10s ease-in-out infinite both alternate;
+}
+
+.blob div {
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.blob-container:hover .blob div {
+    animation: spin 10s linear infinite reverse;
+}
+
+.blob div img {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.blob .material-icons {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 100px;
+}
+
+
+
+.blob-container label{
+    display: none;
+    transition: 0.2s;
+    transition-delay: 1s;
+}
+
+.blob-container label div{
+    width: 256px;
+    text-align: left;
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: normal;
+    padding: 15px;
+}
+
+.blob-container label p{
+    color: black;
+}
+
+.blob-container:hover label{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    display: flex;
+    flex-wrap: wrap;
+    flex-basis: 100%;
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+0) label{
+    color: var(--palette1); 
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+1) label{
+    color: var(--palette2);
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+2) label{
+    color: var(--palette3);
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+3) label{
+color: var(--palette4);
+}
+
+.list .blob-container:not(.menu-function):nth-child(5n+4) label{
+    color:var(--palette5);
+}
+
+
+
+@keyframes morph {
+    0% {
+        border-radius: 50%;
+    }
+    15% {
+        border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%;
+    }
+    30% {
+        border-radius: 60% 40%;
+    }
+    45% {
+        border-radius: 50% 50% 60% 40% / 70% 70% 30% 30%;
+    }
+    60% {
+        border-radius: 70% 30% 60% 40% / 70% 30% 70% 30%;
+    }
+    75% {
+        border-radius: 60% 40% 60% 40% / 50% 30% 70% 50%;
+    }
+    90% {
+        border-radius: 30% 70% 50% 50% / 60% 70% 30% 40%;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(1turn);
+    }
+}
+
+@keyframes hover {
+    to {
+        transform: translateY(-40px);
+    }
+}

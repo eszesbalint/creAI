@@ -1,6 +1,6 @@
 __pycache__
 creAI.egg-info
-.vscode
+.vscode/
 creAI/mc/versions/*
 creAI/styles/*
 dist/*

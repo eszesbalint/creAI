@@ -1,5 +1,11 @@
 {
     "python.pythonPath": "/home/ebalint96/anaconda3/envs/creAI/bin/python",
     "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true
+    "python.linting.enabled": true,
+    "[html]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 1
+      },
+    "files.exclude":{"**/*.pyc": {"when": "$(basename).py"}, 
+    "**/__pycache__": true}
 }

@@ -8,12 +8,10 @@ setup(
     url='https://github.com/ebalint96/creAI',
     packages=find_packages(),
     install_requires=[
+        'docstring-parser',
         'Eel',
         'Pillow',
         'numpy',
         'tensorflow',
     ],
-    extras_require={
-        'training': ['dirt @ git+https://github.com/pmh47/dirt.git'],
-    }
 )

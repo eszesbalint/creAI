@@ -1,11 +1,8 @@
-*.pyc
-*.h5
-*.schematic
-*.gz
-creAI/plugins/file_manager/formats/tilemaps/minecraft_tilemaps/geometry/models/1.15.2/*
-creAI/plugins/style_transfer/tile_encoder/models/*
 __pycache__
 creAI.egg-info
 .vscode
-creAI/plugins/file_manager/formats/tilemaps/minecraft_tilemaps/geometry/models/1.15.2/1.15.2.jar
-creAI/plugins/file_manager/formats/tilemaps/minecraft_tilemaps/geometry/models/1.15.2/1.15.2.json
+creAI/mc/versions/*
+creAI/styles/*
+dist/*
+build/*
+*.spec

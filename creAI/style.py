@@ -125,7 +125,7 @@ class Style(object):
 
             data_generator = RandomNoise(
                 1000, channels=self.models.generator.input_channels, 
-                batch_size=batch_size, min_shape=[2,2,2], max_shape=[2,2,2])
+                batch_size=batch_size, min_shape=[2,2,2], max_shape=[4,4,4])
             train_generator(self.models.generator,
                             data_generator, epochs=epochs,
                             callbacks=[StyleTrainingCallback(self)])
@@ -136,7 +136,7 @@ class Style(object):
 
         in_w, in_h, in_l = (max(s//8, 1) for s in shape)
         c = self.models.generator.input_channels
-        np.random.seed(0)
+        
         random_noise = np.random.normal(size=(1,in_w,in_h,in_l,c))
         self.models.generator.model.compile(loss=tf.keras.losses.mean_squared_error, optimizer='adam')
         pred = self.models.generator.model.predict(random_noise)

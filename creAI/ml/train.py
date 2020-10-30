@@ -25,7 +25,7 @@ def init_vae(input_dim, latent_dim, vae=None):
 def init_generator(y_true, input_channels, output_channels, g=None):
     if g is None:
         #Building fully convolutional generator network
-        g = DummyGeneratorNetwork(input_channels, output_channels)
+        g = GeneratorNetwork(input_channels, output_channels)
         g.build()
     loss = feature_loss(y_true,g.model.output,(5,5,5),512)
     #loss = test_loss(y_true, g.model.output)

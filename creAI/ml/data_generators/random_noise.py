@@ -17,8 +17,8 @@ class RandomNoise(Sequence):
         return self.number_of_samples // self.batch_size
 
     def __getitem__(self, index):
-        seed(0)
-        np.random.seed(0)
+        seed(index)
+        np.random.seed(index)
         b = self.batch_size
         c = self.channels
         w, h, l = [randint(a, b) for a, b in zip(self.min_shape, self.max_shape)]

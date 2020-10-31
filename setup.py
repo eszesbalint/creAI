@@ -7,6 +7,7 @@ setup(
     author_email='eszes.balint96@gmail.com',
     url='https://github.com/ebalint96/creAI',
     packages=find_packages(),
+    package_dir={'creAI': 'creAI'},
     install_requires=[
         'docstring-parser',
         'Eel',

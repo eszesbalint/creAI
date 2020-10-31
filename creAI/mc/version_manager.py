@@ -2,7 +2,7 @@ import sys
 from zipfile import ZipFile
 from os import PathLike
 from os import listdir
-from os.path import join, isdir, dirname
+from os.path import join, isdir, dirname, exists
 from typing import List
 
 if getattr(sys, 'frozen', False):

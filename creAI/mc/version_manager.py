@@ -10,6 +10,9 @@ if getattr(sys, 'frozen', False):
 else:
     EXTRACTION_PATH = join(dirname(__file__), 'versions')
 
+if not exists(EXTRACTION_PATH):
+    mkdir(EXTRACTION_PATH)
+
 MC_PATH = None
 
 

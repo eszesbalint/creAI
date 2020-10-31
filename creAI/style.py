@@ -22,7 +22,8 @@ if getattr(sys, 'frozen', False):
 else:
     STYLES_PATH = join(dirname(__file__), 'styles')
 
-
+if not exists(STYLES_PATH):
+    mkdir(STYLES_PATH)
 
 
 

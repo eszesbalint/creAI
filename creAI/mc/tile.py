@@ -6,7 +6,7 @@ from PIL import Image
 import numpy as np
 from typing import List
 
-from creAI.mc import version_manager as vm
+import creAI.mc.version_manager
 from creAI.mc.exceptions import *
 
 class Tile(object):
@@ -59,7 +59,7 @@ class Tile(object):
 
 
     def __load_mdl(self):
-        pth = vm.get_path(self._mc_vers)
+        pth = creAI.mc.version_manager.get_path(self._mc_vers)
         bs_pth = join(pth, 'assets', 'minecraft', 'blockstates')
         mdl_pth = join(pth, 'assets', 'minecraft', 'models', 'block')
         bs = join(bs_pth, self.name+'.json')
@@ -134,7 +134,7 @@ class Tile(object):
         if mdl is None:
             return None
         
-        pth = vm.get_path(self._mc_vers)
+        pth = creAI.mc.version_manager.get_path(self._mc_vers)
         txtrs_pth = join(pth, 'assets', 'minecraft', 'textures')
         txtrs = {}
         for name, f_pth in mdl['textures'].items():
@@ -181,7 +181,7 @@ class Tile(object):
 
     @classmethod
     def list_all(cls, version: str):
-        pth = vm.get_path(version)
+        pth = creAI.mc.version_manager.get_path(version)
         bs_pth = join(pth, 'assets', 'minecraft', 'blockstates')
 
         tile_names = [f.split('.')[0] for f in listdir(bs_pth) if isfile(join(bs_pth, f))]

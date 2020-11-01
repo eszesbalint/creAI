@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-import creAI.mc.nbt as nbt
+from creAI.mc import nbt
 from creAI.mc.tilemap import Tilemap
 from creAI.mc.tile import Tile
 

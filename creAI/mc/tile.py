@@ -1,24 +1,23 @@
 from os import listdir
-from os.path import join, isdir, isfile, dirname
+from os.path import join, isdir, isfile, dirname, exists
 import json
 import re
 from PIL import Image
 import numpy as np
 from typing import List
 
-import creAI.mc.version_manager as vm
-
+from creAI.mc import version_manager as vm
+from creAI.mc.exceptions import *
 
 class Tile(object):
     _id_regex = re.compile(r'^minecraft:([a-z0-9_]+)'
                            r'(\[[A-z0-9_]+\=[A-z0-9_]+(?:\,(?:[A-z0-9_]+\=[A-z0-9_]+))*\])?$')
 
-    def __init__(self, id: str, version: str = None):
-        if self._id_regex.match(id) is not None:
-            self._id = id
+    def __init__(self, id_: str, version: str = None):
+        if self._id_regex.match(id_) is not None:
+            self._id = id_
         else:
-            raise AttributeError('{} is not a valid '
-                                 'Minecraft tile id!'.format(id))
+            raise InvalidMinecraftNamespaceID(id_)
         self._mc_vers = version
 
 
@@ -49,8 +48,7 @@ class Tile(object):
     @property
     def model_3d(self):
         if self.version is None:
-            raise AttributeError('Can not load 3D models of tiles with'
-                                 ' undefined Minecraft version!')
+            raise ModelLoadingWithUndefinedMinecraftVersion(self)
 
         return self.__load_mdl()
 
@@ -64,7 +62,10 @@ class Tile(object):
         pth = vm.get_path(self._mc_vers)
         bs_pth = join(pth, 'assets', 'minecraft', 'blockstates')
         mdl_pth = join(pth, 'assets', 'minecraft', 'models', 'block')
-        with open(join(bs_pth, self.name+'.json'), 'r') as bs_json:
+        bs = join(bs_pth, self.name+'.json')
+        if not exists(bs):
+            raise NoMatchFoundInBlockstates(self)
+        with open(bs, 'r') as bs_json:
             bs_data = json.load(bs_json)
 
         def truncate(s):
@@ -118,8 +119,7 @@ class Tile(object):
                     max_key = v
 
             if not max_arg:
-                raise KeyError(
-                    'No matching blockstate found for {}'.format(self._id))
+                raise NoMatchFoundInBlockstates(self)
 
             mdl_names = [sel_mdl_from(bs_data['variants'][max_key])]
 

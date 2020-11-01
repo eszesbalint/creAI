@@ -4,6 +4,9 @@ from os import PathLike, listdir, mkdir
 from os.path import join, isdir, dirname, exists
 from typing import List
 
+
+from creAI.mc.exceptions import *
+
 if getattr(sys, 'frozen', False):
     EXTRACTION_PATH = join(sys._MEIPASS, 'mc', 'versions')
 else:
@@ -24,11 +27,13 @@ def versions() -> List[str]:
 
 def get_path(v: str) -> PathLike:
     if v not in versions():
-        raise ValueError('Minecraft version {} is not'
-                        ' installed on your system!'.format(v))
+        raise MinecraftVersionNotInstalled(v)
     pth = join(EXTRACTION_PATH, v)
     if v not in EXTRACTED_VERSIONS:
         print('Extracting Minecraft version {}...'.format(v))
+        jar_pth = join(MC_PATH, 'versions', v, v+'.jar')
+        if not exists(jar_pth):
+            raise MissingMinecraftJarFile(v)
         with ZipFile(join(MC_PATH, 'versions', v, v+'.jar')) as z:
             z.extractall(join(EXTRACTION_PATH, v))
             EXTRACTED_VERSIONS.append(v)

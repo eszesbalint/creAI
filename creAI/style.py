@@ -131,6 +131,8 @@ class Style(object):
                             data_generator, epochs=epochs,
                             callbacks=[StyleTrainingCallback(self)])
 
+        
+
     def generate(self, shape):
         import tensorflow as tf
         

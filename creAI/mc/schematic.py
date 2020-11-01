@@ -5,6 +5,7 @@ import creAI.mc.nbt as nbt
 from creAI.mc.tilemap import Tilemap
 from creAI.mc.tile import Tile
 
+from creAI.mc.exceptions import *
 
 class Schematic(Tilemap):
     @classmethod
@@ -19,30 +20,28 @@ class Schematic(Tilemap):
             "DataVersion": nbt.TAG_Int,
             "Version": nbt.TAG_Int
         }
-        try:
-            for name, tag_class in required_tags.items():
-                found = False
-                for tag in root.payload:
-                    if tag.name == name:
-                        if isinstance(tag, tag_class):
-                            found = True
-                        else:
-                            raise TypeError("Tag with name \"{}\" found but it has the wrong type! It is {} instead of {}.".format(name, type(tag).__name__, tag_class.__name__))
 
-                if not found:
-                    raise ValueError("{} tag with name \"{}\" not found in the root NBT tag!".format(
-                        tag_class.__name__, name))
+        for name, tag_class in required_tags.items():
+            found = False
+            for tag in root.payload:
+                if tag.name == name:
+                    if isinstance(tag, tag_class):
+                        found = True
+                    else:
+                        raise InvalidNBTTagType(name, tag_class)
 
-            if root["DataVersion"].payload < 1976:
-                raise ValueError("DataVersion should be at least 1976!")
+            if not found:
+                raise MissingNBTTag(name)
 
-            if root["Version"].payload < 2:
-                raise ValueError("Version should be at least 2!") 
+        if root["DataVersion"].payload < 1976:
+            raise ValueError("Schematic DataVersion should be at least 1976!")
 
-            return root
+        if root["Version"].payload < 2:
+            raise ValueError("Schematic Version should be at least 2!") 
 
-        except Exception as e:
-            raise ValueError("Reading file as a schematic file failed for the following reason:\n{}".format(str(e)))
+        return root
+
+        
 
     @classmethod
     def load(cls, file, version):

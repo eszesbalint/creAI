@@ -4,7 +4,7 @@ from typing import List
 
 from creAI.mc.tile import Tile, vectorize
 
-
+from creAI.mc.exceptions import *
 
 def to_slice(key, ndim=3):
     new_key = [slice(None) for _ in range(ndim)]
@@ -21,13 +21,13 @@ class Tilemap(object):
         
         if data is not None and palette is not None:
             self.data = data
-            self._p = palette
+            self.palette = palette
             self.__remap()
         elif data is None and palette is None and shape is not None:
-            self._bd = np.zeros(shape, dtype=int)
-            self._p = [Tile('minecraft:air')]
+            self.data = np.zeros(shape, dtype=int)
+            self.palette = [Tile('minecraft:air')]
         else:
-            raise AttributeError('')
+            raise TilemapInvalidInitArguments(shape, data, palette)
 
         self.version = version
 
@@ -38,6 +38,12 @@ class Tilemap(object):
 
     @palette.setter
     def palette(self, val):
+        if not isinstance(val, list):
+            raise TilemapPaletteIsNotList(val)
+        else:
+            for t in val:
+                if not isinstance(t, Tile):
+                    raise TilemapPaletteIsNotAListOfTiles(val)
         self._p = val
 
     def palette_to_vecs(self, pad_to: int = None) -> np.ndarray:
@@ -54,11 +60,9 @@ class Tilemap(object):
             if len(val.shape) == 3:
                 self._bd = val
             else:
-                raise ValueError('Tilemap data should be '
-                                 'of rank 3, got shape {}!'.format(val.shape))
+                raise TilemapDataShapeError(val)
         else:
-            raise TypeError('Tilemap data should be a Numpy '
-                            'array, got {}!'.format(val._class_.__name__))
+            raise TilemapDataTypeError(val)
 
     @property
     def shape(self):
@@ -117,7 +121,7 @@ class Tilemap(object):
             a.__remap()
 
         else:
-            raise TypeError('')
+            raise TilemapAssertionTypeError(val)
 
     
 

@@ -6,12 +6,14 @@ import sys
 from os import PathLike
 from os.path import join, dirname, abspath
 import eel
+import traceback
 
 from creAI.style import Style
 from creAI.cli import CommandlineInterface, command, default_command
 from creAI.mc import Schematic, tilemap_to_geometry
 import creAI.mc.version_manager
 
+from creAI.mc.exceptions import *
 
 class App(CommandlineInterface):
     """Generates Minecraft tilemaps via a selection of deep learning models.
@@ -37,6 +39,7 @@ class App(CommandlineInterface):
         cfg_parser.read(self._cfg_path)
         self._cfg = cfg_parser
         creAI.mc.version_manager.MC_PATH = self._cfg['Minecraft']['InstallationPath']
+        self._debug_mode = bool(int(self._cfg['App']['DebugMode']))
 
         #Current tilemap
         self._tlmp = None
@@ -66,17 +69,24 @@ class App(CommandlineInterface):
                 print(v)
 
     @command
-    def config(self, mc_path):
+    def config(self, mc_path, debug_mode):
         """Config subcommand.
 
         Use this to change settings.
 
         Args:
             mc_path (str, optional): Set Minecraft installation path.
+            debug_mode (int, optional): Wether or not to print the exception
+                traceback. 
 
         """
         if mc_path is not None:
             self._cfg['Minecraft']['InstallationPath'] = mc_path
+            with open(self._cfg_path, 'w') as cfg_file:
+                self._cfg.write(cfg_file)
+
+        if debug_mode is not None:
+            self._cfg['App']['DebugMode'] = str(debug_mode)
             with open(self._cfg_path, 'w') as cfg_file:
                 self._cfg.write(cfg_file)
         print('Config saved.')
@@ -111,10 +121,28 @@ class App(CommandlineInterface):
             schem (str, optional): The Minecraft schematic file to use as a
                 reference through training.
         """
-        
-        stl = Style(style, mc_version=mc_version, icon_pth=icon)
-        stl.train(vae=vae, generator=generator, schem_pth=schem,
-                  batch_size=batch_size, epochs=epochs)
+        try:
+            stl = Style(style, mc_version=mc_version, icon_pth=icon)
+            stl.train(vae=vae, generator=generator, schem_pth=schem,
+                      batch_size=batch_size, epochs=epochs)
+        except MinecraftError as me:
+            print('Minecraft tilemap manipulation failed!')
+            if self._debug_mode:
+                traceback.print_exc()
+            else:
+                print('Set config parameter \"debug_mode\" to 1 to see full traceback.')
+            print(me)
+            del stl
+        except Exception as e:
+            print('An exception occured!')
+            if self._debug_mode:
+                traceback.print_exc()
+            else:
+                print('Set config parameter \"debug_mode\" to 1 to see full traceback.')
+            print(e)
+            del stl
+
+
 
     @command
     def generate(self, style=None, output=None):

@@ -126,11 +126,11 @@ class Style(object):
 
             data_generator = RandomNoise(
                 10000, channels=self.models.generator.input_channels, 
-                batch_size=batch_size, min_shape=[2,2,2], max_shape=[4,4,4],
+                batch_size=batch_size, min_shape=[2,2,2], max_shape=[3,3,3],
                 seed=0)
             validation_data_generator = RandomNoise(
                 100, channels=self.models.generator.input_channels, 
-                batch_size=batch_size, min_shape=[2,2,2], max_shape=[4,4,4],
+                batch_size=batch_size, min_shape=[2,2,2], max_shape=[3,3,3],
                 seed=12345)
             self.models.generator.model.fit(
                             data_generator, 

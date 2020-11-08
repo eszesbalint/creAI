@@ -122,7 +122,7 @@ class Style(object):
             encoded_tlmp = mapped.reshape(
                 tlmp.shape+(self.models.vae.latent_dim,))
             self.models.generator = init_generator(
-                encoded_tlmp, 128, self.models.vae.latent_dim, self.models.generator)
+                encoded_tlmp, 256, self.models.vae.latent_dim, self.models.generator)
 
             data_generator = RandomNoise(
                 10000, channels=self.models.generator.input_channels, 

@@ -1,7 +1,7 @@
 from os import PathLike
 from os.path import join
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Conv3D, Conv3DTranspose, Input, Layer, UpSampling3D, BatchNormalization, Activation
+from tensorflow.keras.layers import Conv3D, Conv3DTranspose, Input, Layer, BatchNormalization, Activation, LeakyReLU
 from tensorflow.keras.models import load_model
 from tensorflow.keras import Sequential
 import tensorflow as tf
@@ -96,18 +96,23 @@ class GeneratorNetwork():
         #    128, 64, (4,4,4), strides=(2,2,2), activation='relu', 
         #    padding='same', kernel_initializer='he_normal')(x)
         x = Conv3DTranspose(
-            128, (4,4,4), strides=(2,2,2), activation='relu', 
-            padding='same', kernel_initializer='he_normal')(x)
-        x = Conv3D(64, (3,3,3), padding='same', activation='relu')(x)
+            128, (3,3,3), strides=(2,2,2), 
+            padding='same')(x)
+        x = BatchNormalization()(x)
+        x = LeakyReLU(alpha=0.01)(x)
+
         x = Conv3DTranspose(
-            64, (4,4,4), strides=(2,2,2), activation='relu', 
-            padding='same', kernel_initializer='he_normal')(x)
-        x = Conv3D(32, (3,3,3), padding='same', activation='relu')(x)
+            64, (3,3,3), strides=(2,2,2), 
+            padding='same')(x)
+        x = BatchNormalization()(x)
+        x = LeakyReLU(alpha=0.01)(x)
+
         x = Conv3DTranspose(
-            32, (4,4,4), strides=(2,2,2), activation='relu', 
-            padding='same', kernel_initializer='he_normal')(x)
-        x = Conv3D(32, (3,3,3), padding='same', activation='relu')(x)
-        x = Conv3D(16, (3,3,3), padding='same', activation='relu')(x)
+            32, (3,3,3), strides=(2,2,2), 
+            padding='same')(x)
+        x = BatchNormalization()(x)
+        x = LeakyReLU(alpha=0.01)(x)
+
         x = Conv3D(self.output_channels, (3,3,3), padding='same', activation=None)(x)
         output = x
         self.model = Model(input_, output)

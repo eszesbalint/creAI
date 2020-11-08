@@ -126,9 +126,16 @@ class Style(object):
 
             data_generator = RandomNoise(
                 1000, channels=self.models.generator.input_channels, 
-                batch_size=batch_size, min_shape=[2,2,2], max_shape=[4,4,4])
-            train_generator(self.models.generator,
-                            data_generator, epochs=epochs,
+                batch_size=batch_size, min_shape=[2,2,2], max_shape=[4,4,4],
+                seed=0)
+            validation_data_generator = RandomNoise(
+                100, channels=self.models.generator.input_channels, 
+                batch_size=batch_size, min_shape=[2,2,2], max_shape=[4,4,4],
+                seed=1)
+            self.models.generator.fit(
+                            data_generator, 
+                            epochs=epochs,
+                            validation_data=validation_data_generator
                             callbacks=[StyleTrainingCallback(self)])
 
         

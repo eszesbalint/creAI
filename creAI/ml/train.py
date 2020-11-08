@@ -29,7 +29,7 @@ def init_generator(y_true, input_channels, output_channels, g=None):
         g.build()
     loss = feature_loss(y_true,g.model.output,(5,5,5),512)
     #loss = test_loss(y_true, g.model.output)
-    optimizer = Adam(learning_rate=0.01)
+    optimizer = Adam()
     g.model.compile(optimizer=optimizer, loss=loss)
     g.model.summary()
     return g

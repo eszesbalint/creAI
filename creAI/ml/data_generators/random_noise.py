@@ -18,9 +18,8 @@ class RandomNoise(Sequence):
         return self.number_of_samples // self.batch_size
 
     def __getitem__(self, index):
-        if index:
-            seed(self.seed)
-            np.random.seed(self.seed)
+        seed(self.seed+index)
+        np.random.seed(self.seed+index)
         
         b = self.batch_size
         c = self.channels

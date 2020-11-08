@@ -125,13 +125,13 @@ class Style(object):
                 encoded_tlmp, 128, self.models.vae.latent_dim, self.models.generator)
 
             data_generator = RandomNoise(
-                1000, channels=self.models.generator.input_channels, 
+                10000, channels=self.models.generator.input_channels, 
                 batch_size=batch_size, min_shape=[2,2,2], max_shape=[4,4,4],
                 seed=0)
             validation_data_generator = RandomNoise(
                 100, channels=self.models.generator.input_channels, 
                 batch_size=batch_size, min_shape=[2,2,2], max_shape=[4,4,4],
-                seed=1)
+                seed=12345)
             self.models.generator.model.fit(
                             data_generator, 
                             epochs=epochs,

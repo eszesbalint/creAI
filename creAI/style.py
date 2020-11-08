@@ -135,7 +135,7 @@ class Style(object):
             self.models.generator.fit(
                             data_generator, 
                             epochs=epochs,
-                            validation_data=validation_data_generator
+                            validation_data=validation_data_generator,
                             callbacks=[StyleTrainingCallback(self)])
 
         

@@ -10,7 +10,8 @@ import traceback
 
 from creAI.style import Style
 from creAI.cli import CommandlineInterface, command, default_command
-from creAI.mc import Schematic, tilemap_to_geometry
+from creAI.mc import Schematic
+from creAI.mc.geometry import tilemap_to_geometry
 import creAI.mc.version_manager
 
 from creAI.mc.exceptions import *

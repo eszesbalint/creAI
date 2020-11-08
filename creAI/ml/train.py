@@ -4,7 +4,7 @@ from creAI.ml.losses import vae_loss, feature_loss
 from creAI.ml.losses.test_loss import test_loss
 from creAI.ml.data_generators import RandomNoise
 
-from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.optimizers import Adam
 
 def init_vae(input_dim, latent_dim, vae=None):
     if vae is None:
@@ -29,7 +29,8 @@ def init_generator(y_true, input_channels, output_channels, g=None):
         g.build()
     loss = feature_loss(y_true,g.model.output,(5,5,5),512)
     #loss = test_loss(y_true, g.model.output)
-    g.model.compile(optimizer='adam', loss=loss)
+    optimizer = Adam(learning_rate=0.1)
+    g.model.compile(optimizer=optimizer, loss=loss)
     g.model.summary()
     return g
 

@@ -32,5 +32,10 @@ async function save(){
   	document.body.removeChild(element);
 }
 
+eel.expose(exception_alert);
+function exception_alert(s){
+    alert(s);
+}
+
 populate_app_info();
 populate_style_list();

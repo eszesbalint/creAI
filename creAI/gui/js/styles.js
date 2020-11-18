@@ -6,12 +6,9 @@ async function generate(stl_name){
   } else {
     is_busy = true;
     document.getElementsByClassName('loading-screen')[0].style.display = 'flex';
-    try {
-      await eel.generate(stl_name)();
-      await display_tilemap();
-    } catch (e) {
-      alert(e['errorText'])
-    }
+
+    await eel.generate(stl_name)();
+    await display_tilemap();
 
     document.getElementsByClassName('loading-screen')[0].style.display = 'none';
     is_busy = false;

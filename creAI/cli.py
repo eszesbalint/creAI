@@ -57,14 +57,14 @@ def default_command(fun):
 
 
 class CommandlineInterface(object):
-    def __init__(self):
+    def __init__(self, prog=''):
         #Parsing docstring
         self.description = docstring_parser.parse(self.__doc__).short_description
         help_text = self.description \
                     + '\n\n' \
                     + docstring_parser.parse(self.__doc__).long_description
         #Creating argument parsers
-        self._parser = argparse.ArgumentParser(description=help_text)
+        self._parser = argparse.ArgumentParser(prog=prog, description=help_text)
         self._parser.set_defaults(cmd='')
         self._subparsers = self._parser.add_subparsers()
         #Commands to expose to the commandline
@@ -93,13 +93,20 @@ class CommandlineInterface(object):
 
                 for arg in doc.params:
                     #Creating arguments based on the docstrings
-                    parser.add_argument(
-                        '--{}'.format(arg.arg_name.replace('_','-')),
-                        action='store',
-                        type=getattr(sys.modules[__name__], arg.type_name), 
-                        help=arg.description,
-                        required=not arg.is_optional
-                        )
+                    if arg.type_name == 'bool':
+                        parser.add_argument(
+                            '--{}'.format(arg.arg_name.replace('_','-')),
+                            action='store_true',
+                            help=arg.description,
+                            )
+                    else:
+                        parser.add_argument(
+                            '--{}'.format(arg.arg_name.replace('_','-')),
+                            action='store',
+                            type=getattr(sys.modules[__name__], arg.type_name), 
+                            help=arg.description,
+                            required=not arg.is_optional
+                            )
                         
     def run(self):
         self._args = self._parser.parse_args()

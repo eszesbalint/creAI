@@ -8,8 +8,15 @@ from creAI.mc.tile import Tile
 from creAI.mc.exceptions import *
 
 class Schematic(Tilemap):
+    """Minecraft schematics.
+
+    The schematic file format is a special NBT format which consists of
+    different nested data tags. 
+    """
     @classmethod
     def _check_format(cls, root: nbt.TAG_Compound) -> nbt.TAG_Compound:
+        """Checks the existance of required tags.
+        """
         required_tags = {
             "Width": nbt.TAG_Short,
             "Height": nbt.TAG_Short,
@@ -45,6 +52,8 @@ class Schematic(Tilemap):
 
     @classmethod
     def load(cls, file, version):
+        """Builds a tilemap based on the NBT structure.
+        """
         root_tag = cls._check_format(nbt.load(file=file))
 
         h = root_tag["Height"].payload
@@ -56,7 +65,7 @@ class Schematic(Tilemap):
         numeric_ids = np.empty((w, h, l), dtype=int)
         data_offset = 0
 
-
+        #Extracting numeric ids from binary data
         for block in range(h*l*w):
             numeric_id = 0
             id_length = 0
@@ -96,6 +105,8 @@ class Schematic(Tilemap):
         return self
 
     def save(self, file):
+        """Builds an NBT structure based on the tilemap.
+        """
         # Swapping axes
         swapped_tile_map = np.swapaxes(self._bd, 0, 1)
         swapped_tile_map = np.swapaxes(swapped_tile_map, 1, 2)

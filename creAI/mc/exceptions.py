@@ -68,7 +68,7 @@ class TilemapAssertionTypeError(MinecraftError):
 
     def __str__(self):
         return ('Couldn\'t assert value of type {} to tilemap!'
-               '').format(type(self.val).__name__)
+               '').format(type(self.v).__name__)
 
 class InvalidMinecraftNamespaceID(MinecraftError):
     def __init__(self, id_):

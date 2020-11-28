@@ -178,10 +178,10 @@ class App(CommandlineInterface):
         #between the App and the graphical user interface
         #a bit easier
 
-        def get_style_list(self):
+        def get_style_list():
             return Style.list_all()
         
-        def get_style_info(self, stl_name: str):
+        def get_style_info(stl_name: str):
             stl = Style(stl_name, load_models=False)
             return {
                 'name': stl.name,
@@ -189,7 +189,7 @@ class App(CommandlineInterface):
                 'icon': list(stl.icon.to_byte_array())
             }
 
-        def get_tilemap_geometry(self):
+        def get_tilemap_geometry():
             if self._tlmp is None:
                 return None
 
@@ -203,7 +203,7 @@ class App(CommandlineInterface):
 
             return geometry
 
-        def get_tilemap_schematic(self):
+        def get_tilemap_schematic():
             if self._tlmp is None:
                 return None
 
@@ -213,7 +213,7 @@ class App(CommandlineInterface):
 
             return bytearray(buffer.getvalue())
 
-        def get_app_info(self):
+        def get_app_info():
             return {
                 'description': self.description
             }

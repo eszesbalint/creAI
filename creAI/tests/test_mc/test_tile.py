@@ -1,6 +1,7 @@
 import unittest
 
 from creAI.mc import Tile
+from creAI.mc.exceptions import *
 import creAI.mc.version_manager as vm
 vm.MC_PATH = '/home/ebalint96/.minecraft'
 
@@ -13,20 +14,21 @@ class TestTile(unittest.TestCase):
         self.assertEqual(t1.data_values[1], 'arg2=bar')
 
 
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(InvalidMinecraftNamespaceID):
             t2 = Tile('minecraftsomething[arg1=foo,arg2=bar]')
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(InvalidMinecraftNamespaceID):
             t2 = Tile('minecraft:somethingarg1=foo,arg2=bar]')
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(InvalidMinecraftNamespaceID):
             t2 = Tile('minecraft:something[arg1=foo,arg2=bar')
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(InvalidMinecraftNamespaceID):
             t2 = Tile('minecraftt:something[arg1=foo,arg2=bar]')
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(InvalidMinecraftNamespaceID):
             t2 = Tile('minecraft:something[arg1=foo, arg2=bar]')
 
     def test_model_loading(self):
         tiles = Tile.list_all('1.15.2')
-        l = [t.textures for t in tiles]
+        for t in tiles:
+            l = t.textures
 
 
 

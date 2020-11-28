@@ -42,10 +42,12 @@ import docstring_parser
 import sys
 from builtins import int, str, bool
 
-
+from creAI.exceptions import *
 
 
 def command(fun):
+    if fun.__doc__ is None:
+        raise MissingCommandDocstring(fun)
     fun.is_command = True
     return fun
 
@@ -58,6 +60,8 @@ def default_command(fun):
 
 class CommandlineInterface(object):
     def __init__(self, prog=''):
+        if self.__doc__ is None:
+            raise MissingAppDocstring(self)
         #Parsing docstring
         self.description = docstring_parser.parse(self.__doc__).short_description
         help_text = self.description \
@@ -77,14 +81,14 @@ class CommandlineInterface(object):
                 if hasattr(obj, 'is_default_command'):
                     self._cmds[''] = obj
                     continue
-
-                if obj.__doc__ is None:
-                    raise ValueError('Missing docstring for {}!'.format(obj.__name__))
                 
                 #Parsing docstring
                 doc = docstring_parser.parse( obj.__doc__)
-                help_text = doc.short_description + '\n\n' \
-                            + doc.long_description
+                if doc.short_description is not None:
+                    help_text = doc.short_description 
+                if doc.long_description is not None:
+                    help_text += '\n\n' \
+                                + doc.long_description
 
                 cmd = obj.__name__.replace('_','-')
                 parser = self._subparsers.add_parser(cmd, description=help_text)

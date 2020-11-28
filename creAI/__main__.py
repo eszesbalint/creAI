@@ -1,4 +1,4 @@
-from creAI.app import App
+from creAI import App
 
 app = App()
 app.run()

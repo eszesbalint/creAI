@@ -98,7 +98,7 @@ class Style(object):
 
     @property
     def icon(self):
-        return self._icon
+        return self._icon.image
 
     def train(self, vae=True, generator=True,
               schem_pth: PathLike = None, batch_size=128, epochs=100):
@@ -221,6 +221,9 @@ class Style(object):
 
         Args:
             shape (tuple of int): Size of the generated tilemap.
+
+        Returns:
+            Schematic: The generated tilemap.
         """
         # Importing Tensorflow
         import tensorflow as tf

@@ -1,3 +1,6 @@
+"""Feature-loss
+"""
+
 import numpy as np
 from itertools import product
 
@@ -7,7 +10,32 @@ import tensorflow.keras.backend as K
 
 
 def feature_loss(y_true: np.ndarray, y_pred, kernel_size, max_filters):
+    """Feature loss.
+
+    This loss function calculates the local similarity between two 4D tensors.
+    Args:
+        y_true (np.ndarray): The example output. This doesn't change during
+            training. It is used to create convolution kernels.
+        y_pred (tf.Tensor): The output of a model.
+        kernel_size (tuple of int): The size of the kernel used in the
+            calculation of local similarity.
+        max_filters (int): The max number of unique features to extract from
+            the example tensor.
+
+    Returns:
+        function: The loss function built for y_true.
+    """
     def features_from(y_true, kernel_size, max_filters):
+        """Extracting all kernel-sized unique features from y_true.
+
+        Args:
+            y_true (np.ndarray): The example output. This doesn't change during
+                training. It is used to create convolution kernels.
+            kernel_size (tuple of int): The size of the kernel used in the
+                calculation of local similarity.
+            max_filters (int): The max number of unique features to extract from
+                the example tensor. 
+        """
         #Finding all kernel-sized features of y_true 
         k_w, k_h, k_l = kernel_size
         w, h, l, c = y_true.shape
@@ -51,6 +79,9 @@ def feature_loss(y_true: np.ndarray, y_pred, kernel_size, max_filters):
                  k1 = 1,
                  k2 = ft^2
                  k3 = ft
+
+        Returns:
+            function: Local mean-square error.
         """
         c = y_true.shape[-1]
         y_shape = tf.TensorShape([None, None, None, None, c])
@@ -58,6 +89,7 @@ def feature_loss(y_true: np.ndarray, y_pred, kernel_size, max_filters):
 
         ft = features_from(y_true, kernel_size, max_filters)
 
+        #Init convolution kernels
         k1 = np.ones(shape=ft.shape)
         k2 = ft**2
         k3 = ft
@@ -88,7 +120,7 @@ def feature_loss(y_true: np.ndarray, y_pred, kernel_size, max_filters):
         gram = tf.linalg.matmul(filters, filters, transpose_b=True)
         return gram
 
-
+    # Precalculating the Gram-matrix for the example tensor
     local_mean_square_error = lmse(y_true, kernel_size, max_filters)
 
     y_true_edge = tf.constant(np.array([y_true]))
@@ -101,10 +133,8 @@ def feature_loss(y_true: np.ndarray, y_pred, kernel_size, max_filters):
         *tf.shape(activations_true)[-4]
     gram_true = gram_matrix(activations_true) / tf.cast(s, tf.float32)
     y_true_mean = K.mean(y_true_edge, axis=[-4,-3,-2])
-    
 
-
-
+    # Creating a function that calculates difference between Gram-matrices
     def loss_func(y_true, y_pred):
         lmse_pred = local_mean_square_error(y_pred)
         activations_pred = (1.01-tanh(lmse_pred*10)-tanh(lmse_pred)/100)/1.01

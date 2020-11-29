@@ -1,9 +1,23 @@
+"""Tilemap gemoetry module.
+
+This module implements simple functions to convert a tilemap into a vertex
+buffer. This buffer is usually sent to the GUI.
+"""
 from creAI.mc.tile import Tile
 from creAI.mc.tilemap import Tilemap
 
 import numpy as np
 
 def tile_to_geometry(tile: Tile) -> np.ndarray:
+    """Creates a geometry buffer for a single tile.
+
+    Args:
+        tile (Tile): The tile to convert.
+
+    Returns:
+        np.ndarray: An array of the faces, face colors, face normals
+            or None if the tile has no model.
+    """
     mdl = tile.model_3d
     txtrs = tile.textures
 
@@ -46,6 +60,17 @@ def tile_to_geometry(tile: Tile) -> np.ndarray:
 
 
 def tilemap_to_geometry(tlmp: Tilemap) -> np.ndarray:
+    """Creates a geometry buffer for the whole tilemap.
+
+    Generates the geometries for each tile in the palette, then transforms
+    them based on their location and concatenates them.
+
+    Args:
+        tlmp (Tilemap): The tilemap to convert.
+
+    Returns:
+        np.ndarray: An array of the faces, face colors, face normals
+    """
     palette = tlmp.palette
     tile_geometries = dict(
         zip(
@@ -54,6 +79,8 @@ def tilemap_to_geometry(tlmp: Tilemap) -> np.ndarray:
         )
     )
     air = Tile('minecraft:air')
+
+    # Mapping and translation
     geometries = [
         tile_geometries[palette[t]]
         + np.array([i, [0, 0, 0], [0, 0, 0], [0, 0, 0]]).reshape(4, 1, 1, 3)
@@ -66,6 +93,20 @@ def tilemap_to_geometry(tlmp: Tilemap) -> np.ndarray:
     )
 
 def get_box_geometry(from_, to, face_colors) -> np.ndarray:
+    """Creating a geometry buffer for a single 3D box.
+
+    This is used to build the buffer of a whole tile.
+
+    Args:
+        from_ (np.ndarray): Starting coordinate of the box.
+        to (np.ndarray): Ending coordinate of the box.
+        face_colors (dict): dict of colors.
+
+    Returns:
+        np.ndarray: The geometry buffer.
+    """
+
+    # Vertices
     v = [None,
          [to[0], 	to[1],		to[2]],
          [to[0], 	from_[1], 	to[2]],
@@ -76,6 +117,8 @@ def get_box_geometry(from_, to, face_colors) -> np.ndarray:
          [from_[0], 	to[1], 		from_[2]],
          [from_[0], 	from_[1], 	from_[2]],
          ]
+    
+    # Faces
     f = [
         [v[1], v[3], v[5]],
         [v[4], v[8], v[3]],
@@ -90,6 +133,8 @@ def get_box_geometry(from_, to, face_colors) -> np.ndarray:
         [v[4], v[3], v[1]],
         [v[2], v[1], v[5]]
     ]
+
+    # Vertex normals
     n = [None,
          [0.0000, 1.0000, 0.0000],
          [0.0000, 0.0000, 1.0000],
@@ -98,6 +143,8 @@ def get_box_geometry(from_, to, face_colors) -> np.ndarray:
          [1.0000, 0.0000, 0.0000],
          [0.0000, 0.0000, -1.0000]
          ]
+
+    # face normals
     fn = [
         [n[1], n[1], n[1]],
         [n[2], n[2], n[2]],
@@ -112,6 +159,8 @@ def get_box_geometry(from_, to, face_colors) -> np.ndarray:
         [n[5], n[5], n[5]],
         [n[6], n[6], n[6]]
     ]
+
+    # Colors
     c = [None,
          face_colors['up'],
          face_colors['south'],
@@ -120,6 +169,8 @@ def get_box_geometry(from_, to, face_colors) -> np.ndarray:
          face_colors['east'],
          face_colors['north'],
          ]
+
+    # Face colors
     fc = [
         [c[1], c[1], c[1]],
         [c[2], c[2], c[2]],

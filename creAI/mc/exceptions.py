@@ -1,3 +1,9 @@
+"""Minecraft exceptions.
+
+    This module implements the exceptions used throughout the creAI.mc 
+    package.
+"""
+
 class MinecraftError(Exception):
     """Base class for Minecraft related exceptions"""
     pass

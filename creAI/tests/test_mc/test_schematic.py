@@ -9,7 +9,7 @@ vm.MC_PATH = '/home/ebalint96/.minecraft'
 
 test_schems_path = join(dirname(__file__), 'test_schems')
 
-class TestTilemap(unittest.TestCase):
+class TestSchematic(unittest.TestCase):
 
     def test_load(self):
         with open(join(test_schems_path, 'lime_walls_16x16x16.schem'), 'rb') \

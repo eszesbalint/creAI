@@ -1,3 +1,5 @@
+"""Variational autoencoder."""
+
 from os import PathLike
 from os.path import join
 import tensorflow as tf
@@ -8,6 +10,10 @@ import tensorflow.keras.backend as K
 tf.compat.v1.disable_eager_execution()
 
 class Sampling(Layer):
+    """Sampling layer.
+
+    This layer implements the sampling part of the autoencoder.
+    """
     def call(self, inputs):
         z_mean, z_log_var = inputs
         batch = tf.shape(z_mean)[0]
@@ -16,11 +22,29 @@ class Sampling(Layer):
         return z_mean + tf.exp(0.5 * z_log_var) * epsilon
 
 class VAE():
+    """Variational autoencoder.
+
+    Args:
+        input_dim (int): The length of the input vectors i.e. the number of
+            input nodes/neurons.
+        latent_dim (int): The length of the latent vectors i.e. the number of
+            input nodes/neurons in the latent sapce.
+
+    Attributes:
+        input_dim (int): The length of the input vectors i.e. the number of
+            input nodes/neurons.
+        latent_dim (int): The length of the latent vectors i.e. the number of
+            input nodes/neurons in the latent sapce.
+        model (Keras.Model): The whole VAE model.
+        encoder (Keras.Model): The encoder part of the VAE model.
+        decoder (Keras.Model): The decoder part of the VAE model.
+    """
     def __init__(self, input_dim=None, latent_dim=None):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
 
     def build(self):
+        """Builds the computational graph."""
         encoder_input = Input(self.input_dim)
 
         x = encoder_input

@@ -1,2 +1,2 @@
-# CreAI
-A deep learning based tilemap generator for the popular game *Minecraft*.
+# creAI
+*creAI* is a deep learning based tilemap generator for the popular game *Minecraft*. This tool is suitable for randomly generating and saving a tilemap to use it in Minecraft. It can be used to create custom worlds, such as generating a maze or creating an entire building. You can choose from different styles, but you can even create your own style. *creAI* supports the *Sponge Schematic* file format, so it can be easily inserted into the game using *WorldEdit*, for example. The application comes with a web-based graphical interface, but can also be used as a command line program.

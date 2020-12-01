@@ -21,35 +21,41 @@ class LossTest(CommandlineInterface):
     """
     def __init__(self):
         super(LossTest, self).__init__()
-        self.stl = Style('TEST', mc_version='1.15.2')
+        
 
     @command
-    def train(self, schem, batch_size=16, epochs=100):
+    def train(self, style, schem, batch_size=16, epochs=100):
         """Training mode.
 
         This subcommand optimizes a single tensor for the loss.
 
         Args:
+            style (str): Name of the style.
             schem (str): Path to a schematic file.
             batch_size (int): Batch size.
             epochs (int): Epochs.
         """
+        self.stl = Style(style, mc_version='1.15.2')
         self.stl.info['schem_pth'] = schem
         vae = self.stl.models.vae
-        self.stl.models.generator = DummyGeneratorNetwork(256, vae.latent_dim, shape=(64,16,64))
+        self.stl.models.generator = DummyGeneratorNetwork(256, vae.latent_dim, shape=(32,16,32))
         self.stl.models.generator.build()
 
         self.stl.train(generator=True, schem_pth=schem, 
                         batch_size=batch_size, epochs=epochs)
 
     @command
-    def display(self):
+    def display(self, style):
         """Display mode.
+
+        Args:
+            style (str): Name of the style.
         """
+        self.stl = Style(style, mc_version='1.15.2')
         with open(self.stl.info['schem_pth'], 'rb') as schem_file:
             o_tlmp = Schematic.load(schem_file, self.stl.info['mc_version'])
 
-        g_tlmp = self.stl.generate(self.stl.models.generator.shape)
+        g_tlmp = self.stl.generate(shape=(64,16,64))
 
         o_w, o_h, o_l = o_tlmp.shape
         g_w, g_h, g_l = g_tlmp.shape

@@ -19,22 +19,29 @@ class VaeTest(CommandlineInterface):
     """
     def __init__(self):
         super(VaeTest, self).__init__()
-        self.stl = Style('TEST', mc_version='1.15.2')
+        
 
     @command
-    def train(self):
+    def train(self, style):
         """Training mode.
 
         This subcommand has no additional parameters.
+
+        Args:
+            style (str): Name of the style.
         """
+        self.stl = Style(style, mc_version='1.15.2')
         self.stl.train(vae=True, batch_size=64, epochs=300)
     
     @command
-    def display(self):
+    def display(self, style):
         """Display mode.
 
         This subcommand displays a plot of the latent space.
+        Args:
+            style (str): Name of the style.
         """
+        self.stl = Style(style, mc_version='1.15.2')
         vae = self.stl.models.vae
 
         vae_data = Tile.vectorize_all(self.stl.info['mc_version'])

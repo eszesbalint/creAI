@@ -48,7 +48,7 @@ class VAE():
         encoder_input = Input(self.input_dim)
 
         x = encoder_input
-        #x = Dense(256,         activation='relu')(x)
+        x = Dense(256,         activation='relu')(x)
         #x = Dense(128,         activation='relu')(x)
         #x = Dense(64,          activation='relu')(x)
         x = Dense(self.latent_dim,  activation='relu')(x)
@@ -62,7 +62,7 @@ class VAE():
         x = decoder_input
         #x = Dense(64,         activation='relu')(x)
         #x = Dense(128,        activation='relu')(x)
-        #x = Dense(256,        activation='relu')(x)
+        x = Dense(256,        activation='relu')(x)
         x = Dense(self.input_dim,  activation='sigmoid')(x)
 
         decoder_output = x

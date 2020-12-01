@@ -64,7 +64,7 @@ class App(CommandlineInterface):
         #Init commandline interface
         super(App, self).__init__(prog='creAI')
         #Current tilemap
-        self._tlmp = None
+        self.tlmp = None
         #The last style used, for faster re-runs
         self._last_stl = None
 
@@ -165,11 +165,11 @@ class App(CommandlineInterface):
         """
         
         stl = Style(style)
-        self._tlmp = stl.generate((16, 16, 16))
+        self.tlmp = stl.generate((16, 16, 16))
         if output is not None:
             with open(output, 'wb') as schem_file:
-                self._tlmp.save(schem_file)
-        print(self._tlmp)
+                self.tlmp.save(schem_file)
+        print(self.tlmp)
 
     @default_command
     @handle_exceptions
@@ -190,10 +190,10 @@ class App(CommandlineInterface):
             }
 
         def get_tilemap_geometry():
-            if self._tlmp is None:
+            if self.tlmp is None:
                 return None
 
-            geometry = tilemap_to_geometry(self._tlmp)
+            geometry = tilemap_to_geometry(self.tlmp)
 
             geometry = {
                 'vertices': geometry[0, :].flatten().tolist(),
@@ -204,12 +204,12 @@ class App(CommandlineInterface):
             return geometry
 
         def get_tilemap_schematic():
-            if self._tlmp is None:
+            if self.tlmp is None:
                 return None
 
             buffer = io.BytesIO()
 
-            self._tlmp.save(buffer)
+            self.tlmp.save(buffer)
 
             return bytearray(buffer.getvalue())
 

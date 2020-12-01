@@ -1,9 +1,9 @@
 import unittest
 
+from creAI import App
 from creAI.mc import Tile
 from creAI.mc.exceptions import *
-import creAI.mc.version_manager as vm
-vm.MC_PATH = '/home/ebalint96/.minecraft'
+
 
 class TestTile(unittest.TestCase):
 

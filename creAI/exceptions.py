@@ -45,3 +45,20 @@ class VAEModelMissing(ApplicationError):
     def __str__(self):
         return ('You must train the VAE part of the model first in'
                 ' style {}').format(self.stl_name)
+
+class SchematicFileMissing(ApplicationError):
+    def __init__(self, pth):
+        self.pth = pth
+
+    def __str__(self):
+        return ('Schematic file is invalid or missing!'
+                ' No file was found on path: \'{}\'').format(self.pth)
+
+
+class UndefinedStyleMinecraftVersion(ApplicationError):
+    def __init__(self, stl_name):
+        self.stl_name = stl_name
+
+    def __str__(self):
+        return ('No Minecraft version was defined'
+                ' for style {}!').format(self.stl_name)

@@ -1,9 +1,11 @@
 import unittest
 import numpy as np
 
+
+from creAI import App
 from creAI.mc import Tile, Tilemap
 from creAI.mc.exceptions import *
-import creAI.mc.version_manager as vm
+
 
 
 class TestTilemap(unittest.TestCase):

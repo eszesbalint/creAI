@@ -39,3 +39,4 @@ function exception_alert(s){
 
 populate_app_info();
 populate_style_list();
+display_tilemap();

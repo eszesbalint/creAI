@@ -100,7 +100,7 @@ class Style(object):
     def icon(self):
         return self._icon.image
 
-    def train(self, vae=True, generator=True,
+    def train(self, vae=False, generator=False,
               schem_pth: PathLike = None, batch_size=128, epochs=100):
         """Training a style for a specific tilemap.
 
@@ -149,7 +149,10 @@ class Style(object):
             def on_epoch_end(self, epoch, logs=None):
                 self.style.save()
 
-        mc_version = self.info['mc_version']
+        try:
+            mc_version = self.info['mc_version']
+        except:
+            raise UndefinedStyleMinecraftVersion(self.name)
 
         # Training VAE
         if vae:
@@ -169,6 +172,9 @@ class Style(object):
         if generator:
             if self.models.vae is None:
                 raise VAEModelMissing(self.name)
+
+            if not exists(schem_pth):
+                raise SchematicFileMissing(schem_pth)
 
             # Opening example tilemap
             with open(schem_pth, 'rb') as schem_file:

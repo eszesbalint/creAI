@@ -2,10 +2,10 @@ import unittest
 from os.path import join, dirname
 import numpy as np
 
+from creAI import App
 from creAI.mc import Tile, Schematic
 from creAI.mc.exceptions import *
-import creAI.mc.version_manager as vm
-vm.MC_PATH = '/home/ebalint96/.minecraft'
+
 
 test_schems_path = join(dirname(__file__), 'test_schems')
 

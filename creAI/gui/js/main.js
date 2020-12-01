@@ -37,6 +37,11 @@ function exception_alert(s){
     alert(s);
 }
 
-populate_app_info();
-populate_style_list();
-display_tilemap();
+
+async function init_gui(){
+    await populate_app_info();
+    await populate_style_list();
+    await display_tilemap();
+}
+
+init_gui();

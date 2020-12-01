@@ -29,14 +29,16 @@ class TrainableInput(Layer):
         return self.output_dim
 
 class DummyGeneratorNetwork():
-    def __init__(self, input_channels=None, output_channels=None):
+    def __init__(self, input_channels=None, output_channels=None, shape=(16, 16, 16)):
         self.input_channels = input_channels
         self.output_channels = output_channels
+        self.shape = shape
 
 
     def build(self):
+        w, h, l = self.shape
         self.model = Sequential([
-            TrainableInput((1,16,16,16,self.output_channels), input_shape=(None, None, None, self.input_channels))
+            TrainableInput((1,w,h,l,self.output_channels), input_shape=(None, None, None, self.input_channels))
         ])
         
 

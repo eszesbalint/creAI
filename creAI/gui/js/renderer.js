@@ -20,7 +20,7 @@ function onWindowResize() {
 async function display_tilemap() {
 	//Load buffer arrays from Python backend
 	var geometry = await eel.get_tilemap_geometry()();
-	console.log(geometry)
+	console.log(geometry);
 	if (!geometry){
 		return;
 	}

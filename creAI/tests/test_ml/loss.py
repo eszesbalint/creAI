@@ -36,7 +36,7 @@ class LossTest(CommandlineInterface):
         """
         self.stl.info['schem_pth'] = schem
         vae = self.stl.models.vae
-        self.stl.models.generator = DummyGeneratorNetwork(256, vae.latent_dim)
+        self.stl.models.generator = DummyGeneratorNetwork(256, vae.latent_dim, shape=(64,16,64))
         self.stl.models.generator.build()
 
         self.stl.train(generator=True, schem_pth=schem, 
@@ -49,20 +49,21 @@ class LossTest(CommandlineInterface):
         with open(self.stl.info['schem_pth'], 'rb') as schem_file:
             o_tlmp = Schematic.load(schem_file, self.stl.info['mc_version'])
 
-        g_tlmp = self.stl.generate((16,16,16))
+        g_tlmp = self.stl.generate(self.stl.models.generator.shape)
 
         o_w, o_h, o_l = o_tlmp.shape
         g_w, g_h, g_l = g_tlmp.shape
-
+        spacing = 16
         combined = Schematic(
-            shape=(o_w + g_w + 1, 
+            shape=(o_w + g_w + spacing, 
                     max(o_h,g_h),
                     max(o_l,g_l),
-                    )
+                    ),
+            version=self.stl.info['mc_version']
             )
         
         combined[:o_w,:o_h,:o_l] = o_tlmp
-        combined[o_w+1:,:g_h,:g_l] = g_tlmp
+        combined[o_w+spacing:,:g_h,:g_l] = g_tlmp
 
         app = App()
         app.tlmp = combined

@@ -98,7 +98,7 @@ class Style(object):
 
     @property
     def icon(self):
-        return self._icon.image
+        return self._icon
 
     def train(self, vae=False, generator=False,
               schem_pth: PathLike = None, batch_size=128, epochs=100):
